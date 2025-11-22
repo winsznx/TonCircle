@@ -1,0 +1,44 @@
+{
+  "name": "ton-split",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TON Split - Telegram Mini-App for group expense splitting on TON Blockchain",
+  "scripts": {
+    "dev:mini-app": "pnpm --filter mini-app dev",
+    "dev:bot": "pnpm --filter telegram-bot dev",
+    "build:mini-app": "pnpm --filter mini-app build",
+    "build:bot": "pnpm --filter telegram-bot build",
+    "test": "pnpm -r test",
+    "blueprint:build": "npx blueprint build",
+    "blueprint:test": "npx blueprint test",
+    "blueprint:deploy": "npx blueprint run --testnet --tonconnect --tonviewer",
+    "build:GroupVault": "npx blueprint build GroupVault",
+    "build:ExpenseSplitter": "npx blueprint build ExpenseSplitter",
+    "build:GoalContract": "npx blueprint build GoalContract",
+    "deploy:GroupVault": "npx blueprint run deployGroupVault --testnet --tonconnect --tonviewer",
+    "deploy:ExpenseSplitter": "npx blueprint run deployExpenseSplitter --testnet --tonconnect --tonviewer",
+    "deploy:GoalContract": "npx blueprint run deployGoalContract --testnet --tonconnect --tonviewer",
+    "deploy:all": "pnpm build:GroupVault && pnpm build:ExpenseSplitter && pnpm build:GoalContract && pnpm deploy:GroupVault && pnpm deploy:ExpenseSplitter && pnpm deploy:GoalContract"
+  },
+  "keywords": [
+    "TON",
+    "Telegram",
+    "Mini-App",
+    "Blockchain",
+    "Expense-Splitting",
+    "Tolk",
+    "Blueprint"
+  ],
+  "author": "winsznx <timjosh507@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@ton/blueprint": "^0.20.0",
+    "@ton/core": "^0.62.0",
+    "@ton/crypto": "^3.3.0",
+    "@ton/sandbox": "^0.20.0",
+    "@ton/test-utils": "^0.4.2",
+    "@ton/ton": "^16.0.0",
+    "@types/node": "^20.19.25",
+    "typescript": "^5.9.3"
+  }
+}

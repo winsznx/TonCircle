@@ -1,0 +1,4 @@
+packages:
+  - 'mini-app'
+  - 'telegram-bot'
+  - 'wrappers'
