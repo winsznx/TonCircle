@@ -1,6 +1,6 @@
 {
-  "name": "TON Split",
-  "short_name": "TON Split",
+  "name": "TON Circle",
+  "short_name": "TON Circle",
   "description": "Split expenses and manage group finances on the TON Blockchain",
   "start_url": "/",
   "display": "standalone",
