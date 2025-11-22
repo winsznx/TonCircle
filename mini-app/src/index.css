@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light mode - white background, blue accents */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-card: #ffffff;
+
+  --text-primary: #0a0a0a;
+  --text-secondary: #6b7280;
+
+  --primary: #0077b6;
+  --primary-dark: #023e8a;
+  --secondary: #00b4d8;
+  --accent: #48cae4;
+
+  --border: #e5e7eb;
+}
+
+.dark {
+  /* Dark mode - black background, blue accents */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-card: #1a1a1a;
+
+  --text-primary: #f5f5f5;
+  --text-secondary: #9ca3af;
+
+  --primary: #00b4d8;
+  --primary-dark: #0096c7;
+  --secondary: #48cae4;
+  --accent: #90e0ef;
+
+  --border: #262626;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* TON Connect button theming */
+.ton-connect-wrapper button {
+  background: var(--primary) !important;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
