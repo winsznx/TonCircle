@@ -9,6 +9,8 @@
     "build:mini-app": "pnpm --filter mini-app build",
     "build:bot": "pnpm --filter telegram-bot build",
     "test": "pnpm -r test",
+    "dev:all": "pnpm run dev:mini-app & pnpm run dev:bot",
+    "build:all": "pnpm run build:mini-app && pnpm run build:bot",
     "blueprint:build": "npx blueprint build",
     "blueprint:test": "npx blueprint test",
     "blueprint:deploy": "npx blueprint run --testnet --tonconnect --tonviewer",
