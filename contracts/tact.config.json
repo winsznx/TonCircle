@@ -1,0 +1,75 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tact-lang/tact/main/src/config/configSchema.json",
+  "projects": [
+    {
+      "name": "GroupVaultFactory",
+      "path": "contracts/core/GroupVaultFactory.tact",
+      "output": "build/GroupVaultFactory",
+      "options": {
+        "debug": false,
+        "external": false
+      },
+      "mode": "full"
+    },
+    {
+      "name": "GroupVault",
+      "path": "contracts/core/GroupVault.tact",
+      "output": "build/GroupVault",
+      "options": {
+        "debug": false,
+        "external": false
+      },
+      "mode": "full"
+    },
+    {
+      "name": "Member",
+      "path": "contracts/core/Member.tact",
+      "output": "build/Member",
+      "options": {
+        "debug": false,
+        "external": false
+      },
+      "mode": "full"
+    },
+    {
+      "name": "GroupUtils",
+      "path": "contracts/utils/GroupUtils.tact",
+      "output": "build/GroupUtils",
+      "options": {
+        "debug": false,
+        "external": false
+      },
+      "mode": "full"
+    },
+    {
+      "name": "MathUtils",
+      "path": "contracts/utils/MathUtils.tact",
+      "output": "build/MathUtils",
+      "options": {
+        "debug": false,
+        "external": false
+      },
+      "mode": "full"
+    },
+    {
+      "name": "EventUtils",
+      "path": "contracts/utils/EventUtils.tact",
+      "output": "build/EventUtils",
+      "options": {
+        "debug": false,
+        "external": false
+      },
+      "mode": "full"
+    },
+    {
+      "name": "CryptoUtils",
+      "path": "contracts/utils/CryptoUtils.tact",
+      "output": "build/CryptoUtils",
+      "options": {
+        "debug": false,
+        "external": false
+      },
+      "mode": "full"
+    }
+  ]
+}

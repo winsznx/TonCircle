@@ -1,4 +1,5 @@
 packages:
-  - 'mini-app'
-  - 'telegram-bot'
-  - 'wrappers'
+  - "mini-app"
+  - "telegram-bot"
+  - "wrappers"
+  - "contracts"
