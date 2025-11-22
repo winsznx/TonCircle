@@ -2,7 +2,7 @@ import { Address, beginCell, toNano, TonClient } from '@ton/core';
 import { OPCODES, TON, CONTRACT_ADDRESSES } from '../../../common/constants.js';
 
 /**
- * Service for interacting with TON Split smart contracts
+ * Service for interacting with TON Circle smart contracts
  * Follows Blueprint patterns from the tutorial
  */
 export class ContractService {

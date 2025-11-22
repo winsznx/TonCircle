@@ -8,7 +8,7 @@ const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME || '@tonsplit_bot';
 
 export const tonConnectManifest = {
   url: APP_URL,
-  name: 'TON Split',
+  name: 'TON Circle',
   iconUrl: `${APP_URL}/toncircle1.jpg`,
   termsOfUseUrl: APP_URL,
   privacyPolicyUrl: APP_URL
