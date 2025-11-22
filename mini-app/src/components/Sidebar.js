@@ -86,11 +86,11 @@ export function Sidebar({ isOpen, onClose }) {
             <div className="flex items-center space-x-2">
               <img
                 src="/toncircle1.jpg"
-                alt="TON Split Logo"
+                alt="TON Circle Logo"
                 className="w-8 h-8 rounded-lg shadow-md"
               />
               <span className="font-bold text-gray-900 dark:text-white">
-                TON Split
+                TON Circle
               </span>
             </div>
             <button
