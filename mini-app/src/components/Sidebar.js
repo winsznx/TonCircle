@@ -85,7 +85,7 @@ export function Sidebar({ isOpen, onClose }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <img
-                src="/toncircle1.jpg"
+                src="/tc.jpg"
                 alt="TON Circle Logo"
                 className="w-8 h-8 rounded-lg shadow-md"
               />
