@@ -41,18 +41,21 @@ export class ContractService {
 
   /**
    * Register a new group
-   * @param {number} groupId - Telegram group ID
+   * @param {string} groupName - Group name
+   * @param {string} groupHash - Unique group hash
+   * @param {string} adminAddress - Admin address
    */
-  async registerGroup(groupId) {
+  async registerGroup(groupName, groupHash, adminAddress) {
     const body = beginCell()
       .storeUint(OPCODES.GROUP_REGISTER, 32)
-      .storeUint(0, 64) // query_id
-      .storeUint(groupId, 64)
+      .storeRef(beginCell().storeStringTail(groupName).endCell()) // groupName as String in ref
+      .storeInt(BigInt(groupHash), 257)
+      .storeAddress(Address.parse(adminAddress))
       .endCell();
 
     return await this.sendTransaction(
-      this.contracts.GROUP_VAULT,
-      TON.GAS_MEMBER,
+      this.contracts.GROUP_VAULT_FACTORY, // Use factory address
+      '2.2', // 2.2 TON to cover registration fee + gas
       body
     );
   }
@@ -103,23 +106,53 @@ export class ContractService {
    * @param {Array<string>} expenseData.participants - Array of participant addresses
    */
   async createExpense(expenseData) {
-    const { amount, description, participants } = expenseData;
+    const { amount, description, participants, paidBy } = expenseData;
 
-    const builder = beginCell()
-      .storeUint(OPCODES.EXPENSE_CREATE, 32)
-      .storeUint(0, 64) // query_id
-      .storeCoins(toNano(amount))
-      .storeStringTail(description)
-      .storeUint(participants.length, 8);
-
+    // Build splitBetween cell (Array of Address)
+    const splitBetween = beginCell().storeUint(participants.length, 32);
     participants.forEach(addr => {
-      builder.storeAddress(Address.parse(addr));
+      splitBetween.storeAddress(Address.parse(addr));
     });
 
+    // Build splitAmounts cell (Array of Int)
+    // Calculate equal split for now (or pass amounts if available)
+    const totalNano = BigInt(toNano(amount));
+    const splitAmount = totalNano / BigInt(participants.length);
+    const remainder = totalNano % BigInt(participants.length);
+
+    const splitAmounts = beginCell().storeUint(participants.length, 32);
+    for (let i = 0; i < participants.length; i++) {
+      // Add remainder to first person or handle as needed. 
+      // For simplicity, adding to first for now, or just equal.
+      // Contract expects specific amounts.
+      let share = splitAmount;
+      if (i === 0) share += remainder;
+      splitAmounts.storeUint(share, 64); // Storing as uint64 as per contract reading
+    }
+
+    // RecordExpense (0x2007)
+    // expenseId: Int
+    // description: String
+    // totalAmount: Int
+    // paidBy: Address
+    // splitBetween: Cell
+    // splitAmounts: Cell
+    // currency: Address?
+    const body = beginCell()
+      .storeUint(0x2007, 32)
+      .storeInt(0, 257) // expenseId
+      .storeRef(beginCell().storeStringTail(description).endCell()) // description as Ref
+      .storeInt(totalNano, 257) // totalAmount
+      .storeAddress(Address.parse(paidBy))
+      .storeRef(splitBetween.endCell())
+      .storeRef(splitAmounts.endCell())
+      .storeMaybeAddress(null) // currency (null for TON)
+      .endCell();
+
     return await this.sendTransaction(
-      this.contracts.EXPENSE_SPLITTER,
+      this.contracts.GROUP_VAULT, // Send to GroupVault
       TON.GAS_EXPENSE,
-      builder.endCell()
+      body
     );
   }
 
@@ -185,20 +218,27 @@ export class ContractService {
    * @param {boolean} goalData.isPublic - Public visibility
    */
   async createGoal(goalData) {
-    const { title, targetAmount, recipientAddress, deadline, isPublic } = goalData;
+    const { title, description, targetAmount, recipientAddress, deadline } = goalData;
 
+    // CreateGoal (0x2004)
+    // goalId: Int
+    // title: String
+    // description: String
+    // targetAmount: Int
+    // deadline: Int
+    // recipientAddress: Address
     const body = beginCell()
-      .storeUint(OPCODES.GOAL_CREATE, 32)
-      .storeUint(0, 64) // query_id
-      .storeStringTail(title)
-      .storeCoins(toNano(targetAmount))
+      .storeUint(0x2004, 32)
+      .storeInt(0, 257) // goalId (placeholder)
+      .storeRef(beginCell().storeStringTail(title).endCell()) // title as Ref
+      .storeRef(beginCell().storeStringTail(description).endCell()) // description as Ref
+      .storeInt(BigInt(toNano(targetAmount)), 257) // targetAmount
+      .storeInt(BigInt(deadline), 257) // deadline
       .storeAddress(Address.parse(recipientAddress))
-      .storeUint(deadline, 64)
-      .storeBit(isPublic)
       .endCell();
 
     return await this.sendTransaction(
-      this.contracts.GOAL_CONTRACT,
+      this.contracts.GROUP_VAULT, // Send to GroupVault, not GOAL_CONTRACT
       TON.GAS_GOAL,
       body
     );

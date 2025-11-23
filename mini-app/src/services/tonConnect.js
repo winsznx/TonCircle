@@ -1,9 +1,9 @@
 /**
  * TON Connect configuration and utilities
  */
-import { TonClient4 } from '@ton/ton';
+import { TonClient, HttpApi } from '@ton/ton';
 
-const APP_URL = import.meta.env.VITE_APP_URL || 'http://localhost:5173';
+const APP_URL = import.meta.env.VITE_APP_URL || 'https://corresponding-tried-consoles-responding.trycloudflare.com';
 const MANIFEST_URL = import.meta.env.VITE_TON_MANIFEST_URL || `${APP_URL}/tonconnect-manifest.json`;
 const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME || '@tonsplit_bot';
 
@@ -27,12 +27,20 @@ let tonClient = null;
 
 /**
  * Get or create TON client for blockchain interactions
- * @returns {Promise<TonClient4>} TON client instance
+ * @returns {Promise<TonClient>} TON client instance
  */
 export async function getTonClient() {
   if (!tonClient) {
-    tonClient = new TonClient4({
-      endpoint: 'https://mainnet-v4.tonhubapi.com',
+    const network = import.meta.env.VITE_TON_NETWORK || 'testnet';
+    const endpoint = network === 'mainnet'
+      ? 'https://toncenter.com/api/v2/jsonRPC'
+      : 'https://testnet.toncenter.com/api/v2/jsonRPC';
+
+    const apiKey = import.meta.env.VITE_TON_API_KEY;
+
+    tonClient = new TonClient({
+      endpoint: endpoint,
+      apiKey: apiKey || undefined, // Use API key if available
     });
   }
   return tonClient;

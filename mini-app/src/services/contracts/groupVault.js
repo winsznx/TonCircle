@@ -8,6 +8,133 @@ import { GAS_AMOUNTS } from '../../config/contracts';
  */
 class GroupVaultService {
   /**
+   * Create a new goal
+   * @param {Object} params
+   * @param {string} params.groupAddress
+   * @param {string} params.title
+   * @param {string} params.description
+   * @param {string} params.targetAmount
+   * @param {number} params.deadline
+   * @param {string} params.recipientAddress
+   * @param {Function} params.sendTransaction
+   */
+  async createGoal({ groupAddress, title, description, targetAmount, deadline, recipientAddress, sendTransaction }) {
+    try {
+      console.log('Creating goal with params:', { groupAddress, title, description, targetAmount, deadline, recipientAddress });
+
+      // CreateGoal (0x2004)
+      // goalId: Int (257)
+      // title: String (Ref)
+      // description: String (Ref)
+      // targetAmount: Int (257)
+      // deadline: Int (257)
+      // recipientAddress: Address
+      const body = beginCell()
+        .storeUint(0x2004, 32)
+        .storeInt(0, 257) // goalId placeholder
+        .storeRef(beginCell().storeStringTail(title).endCell())
+        .storeRef(beginCell().storeStringTail(description || '').endCell())
+        .storeInt(BigInt(toNano(targetAmount)), 257)
+        .storeInt(BigInt(deadline), 257)
+        .storeAddress(Address.parse(recipientAddress))
+        .endCell();
+
+      console.log('Goal message body created successfully');
+
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 60 * 5,
+        messages: [
+          {
+            address: groupAddress,
+            amount: toNano('0.25').toString(), // Increased gas from 0.15 to 0.25
+            payload: body.toBoc().toString('base64'),
+          },
+        ],
+      };
+
+      console.log('Sending transaction:', transaction);
+      return await sendTransaction(transaction);
+    } catch (error) {
+      console.error('Error creating goal (Detailed):', error);
+      if (error.message) console.error('Error message:', error.message);
+      if (error.stack) console.error('Error stack:', error.stack);
+      throw error;
+    }
+  }
+
+  /**
+   * Record a new expense
+   * @param {Object} params
+   * @param {string} params.groupAddress
+   * @param {string} params.description
+   * @param {string} params.amount
+   * @param {string} params.paidBy
+   * @param {Array<string>} params.participants
+   * @param {Function} params.sendTransaction
+   */
+  async createExpense({ groupAddress, description, amount, paidBy, participants, sendTransaction }) {
+    try {
+      console.log('Creating expense with params:', { groupAddress, description, amount, paidBy, participants });
+
+      // Build splitBetween cell (Array of Address)
+      const splitBetween = beginCell().storeUint(participants.length, 32);
+      participants.forEach(addr => {
+        splitBetween.storeAddress(Address.parse(addr));
+      });
+
+      // Build splitAmounts cell (Array of Int)
+      const totalNano = BigInt(toNano(amount));
+      const splitAmount = totalNano / BigInt(participants.length);
+      const remainder = totalNano % BigInt(participants.length);
+
+      const splitAmounts = beginCell().storeUint(participants.length, 32);
+      for (let i = 0; i < participants.length; i++) {
+        let share = splitAmount;
+        if (i === 0) share += remainder;
+        splitAmounts.storeUint(share, 64); // Storing as uint64
+      }
+
+      // RecordExpense (0x2007)
+      // expenseId: Int (257)
+      // description: String (Ref)
+      // totalAmount: Int (257)
+      // paidBy: Address
+      // splitBetween: Cell
+      // splitAmounts: Cell
+      // currency: Address?
+      const body = beginCell()
+        .storeUint(0x2007, 32)
+        .storeInt(0, 257) // expenseId placeholder
+        .storeRef(beginCell().storeStringTail(description).endCell())
+        .storeInt(totalNano, 257)
+        .storeAddress(Address.parse(paidBy))
+        .storeRef(splitBetween.endCell())
+        .storeRef(splitAmounts.endCell())
+        .storeBit(0) // currency (null for TON) - equivalent to storeMaybeAddress(null)
+        .endCell();
+
+      console.log('Expense message body created successfully');
+
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 60 * 5,
+        messages: [
+          {
+            address: groupAddress,
+            amount: toNano('1.0').toString(), // Increased gas to 1.0 TON for complex operations
+            payload: body.toBoc().toString('base64'),
+          },
+        ],
+      };
+
+      console.log('Sending expense transaction:', transaction);
+      return await sendTransaction(transaction);
+    } catch (error) {
+      console.error('Error recording expense (Detailed):', error);
+      if (error.message) console.error('Error message:', error.message);
+      throw error;
+    }
+  }
+  /**
    * Add a member to the group
    * @param {Object} params
    * @param {string} params.groupAddress - Group vault address
@@ -72,45 +199,7 @@ class GroupVaultService {
     }
   }
 
-  /**
-   * Create a new goal
-   * @param {Object} params
-   * @param {string} params.groupAddress - Group vault address
-   * @param {string} params.title - Goal title
-   * @param {string} params.targetAmount - Target amount in TON
-   * @param {number} params.deadline - Unix timestamp deadline
-   * @param {string} params.recipientAddress - Recipient address
-   * @param {Function} params.sendTransaction - TON Connect send function
-   */
-  async createGoal({ groupAddress, title, targetAmount, deadline, recipientAddress, sendTransaction }) {
-    try {
-      const body = beginCell()
-        .storeUint(0x2004, 32) // CreateGoal opcode
-        .storeUint(0, 64)
-        .storeStringTail(title)
-        .storeCoins(toNano(targetAmount))
-        .storeUint(deadline, 64)
-        .storeAddress(Address.parse(recipientAddress))
-        .endCell();
 
-      const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 60 * 5,
-        messages: [
-          {
-            address: groupAddress,
-            amount: toNano(GAS_AMOUNTS.CREATE_GOAL).toString(),
-            payload: body.toBoc().toString('base64'),
-          },
-        ],
-      };
-
-      const result = await sendTransaction(transaction);
-      return { success: true, result };
-    } catch (error) {
-      console.error('Error creating goal:', error);
-      return { success: false, error: error.message };
-    }
-  }
 
   /**
    * Contribute to a goal
@@ -177,7 +266,7 @@ class GroupVaultService {
       }
 
       const body = beginCell()
-        .storeUint(0x2007, 32) // RecordExpense opcode
+        .storeUint(0x2006, 32) // RECORD_EXPENSE opcode (corrected)
         .storeUint(0, 64)
         .storeStringTail(description)
         .storeCoins(toNano(totalAmount))
@@ -254,10 +343,12 @@ class GroupVaultService {
 
       const result = await client.runMethod(vaultAddress, 'getGroupInfo', []);
 
+      // GroupInfo struct: groupHash, groupName, adminAddress, createdAt, memberCount, isActive
       return {
         groupHash: result.stack.readBigNumber().toString(),
         groupName: result.stack.readString(),
         adminAddress: result.stack.readAddress().toString(),
+        createdAt: Number(result.stack.readBigNumber()),
         memberCount: Number(result.stack.readBigNumber()),
         isActive: result.stack.readBoolean(),
       };
@@ -303,17 +394,18 @@ class GroupVaultService {
 
             // Parse GoalInfo struct
             // Based on GroupTypes.tact GoalInfo structure
+            // Strings are stored as Refs in structs
             const goal = {
               goalId,
-              title: slice.loadStringTail(),
-              description: slice.loadStringTail(),
-              targetAmount: slice.loadCoins(),
-              currentAmount: slice.loadCoins(),
-              deadline: Number(slice.loadUintBig(64)),
+              title: slice.loadRef().beginParse().loadStringTail(),
+              description: slice.loadRef().beginParse().loadStringTail(),
+              targetAmount: slice.loadInt(257).toString(),
+              currentAmount: slice.loadInt(257).toString(),
+              deadline: Number(slice.loadInt(257)),
               recipientAddress: slice.loadAddress().toString(),
               isCompleted: slice.loadBoolean(),
-              contributorCount: Number(slice.loadUintBig(32)),
-              createdAt: Number(slice.loadUintBig(64)),
+              contributorCount: Number(slice.loadInt(257)),
+              createdAt: Number(slice.loadInt(257)),
             };
 
             // Convert amounts from nanotons to TON
@@ -418,13 +510,14 @@ class GroupVaultService {
             // Based on GroupTypes.tact ExpenseInfo structure
             const expense = {
               expenseId,
-              description: slice.loadStringTail(),
-              totalAmount: slice.loadCoins(),
+              description: slice.loadRef().beginParse().loadStringTail(),
+              totalAmount: slice.loadInt(257).toString(),
               paidBy: slice.loadAddress().toString(),
               splitBetween: slice.loadRef(), // Cell containing addresses
               splitAmounts: slice.loadRef(), // Cell containing amounts
-              createdAt: Number(slice.loadUintBig(64)),
+              createdAt: Number(slice.loadInt(257)),
               isSettled: slice.loadBoolean(),
+              currency: slice.loadMaybeAddress(), // Add currency field
             };
 
             // Convert amount from nanotons to TON
@@ -499,6 +592,7 @@ class GroupVaultService {
         splitAmounts: result.stack.readCell(), // Cell containing amounts
         createdAt: Number(result.stack.readBigNumber()),
         isSettled: result.stack.readBoolean(),
+        currency: result.stack.readAddressOpt(), // Add currency field
       };
 
       // Convert amount from nanotons to TON

@@ -7,6 +7,14 @@ import { FACTORY_ADDRESS, GAS_AMOUNTS } from '../../config/contracts';
  * Handles all interactions with the factory contract
  */
 class GroupVaultFactoryService {
+  constructor() {
+    // Simple cache to avoid rate limiting
+    this.cache = {
+      userGroups: null,
+      userGroupsTimestamp: 0,
+      CACHE_TTL: 30000, // 30 seconds
+    };
+  }
   /**
    * Register a new group
    * @param {Object} params
@@ -19,9 +27,8 @@ class GroupVaultFactoryService {
     try {
       const body = beginCell()
         .storeUint(0x1001, 32) // RegisterGroup opcode
-        .storeUint(0, 64) // query_id
-        .storeStringTail(groupName)
-        .storeUint(BigInt(groupHash), 256)
+        .storeRef(beginCell().storeStringTail(groupName).endCell()) // groupName as String in ref
+        .storeInt(BigInt(groupHash), 257) // groupHash as Int
         .storeAddress(Address.parse(adminAddress))
         .endCell();
 
@@ -97,10 +104,15 @@ class GroupVaultFactoryService {
       const client = await getTonClient();
       const factoryAddress = Address.parse(FACTORY_ADDRESS);
 
-      const result = await client.runMethod(factoryAddress, 'getTotalGroups', []);
-      const count = result.stack.readBigNumber();
+      const result = await client.runMethod(factoryAddress, 'getFactoryStatus', []);
 
-      return Number(count);
+      // FactoryStatusResponse struct: totalGroups, isActive, registrationFee
+      const totalGroups = result.stack.readBigNumber();
+      const isActive = result.stack.readBoolean();
+      const registrationFee = result.stack.readBigNumber();
+
+      console.log('Factory status:', { totalGroups: Number(totalGroups), isActive, registrationFee });
+      return Number(totalGroups);
     } catch (error) {
       console.error('Error getting total groups:', error);
       return 0;
@@ -144,34 +156,87 @@ class GroupVaultFactoryService {
    */
   async getUserGroups(userAddress) {
     try {
-      const client = await getTonClient();
+      // Check cache first
+      const now = Date.now();
+      if (this.cache.userGroups &&
+        this.cache.userGroupsAddress === userAddress &&
+        (now - this.cache.userGroupsTimestamp) < this.cache.CACHE_TTL) {
+        console.log('Returning cached user groups');
+        return this.cache.userGroups;
+      }
+
+      console.log('Fetching fresh user groups from blockchain...');
       const totalGroups = await this.getTotalGroups();
       const userGroups = [];
 
-      // Iterate through all groups and check if user is admin or member
+      // Helper to add delay between requests
+      const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+      // Helper for exponential backoff retry
+      const retryOperation = async (operation, maxRetries = 3) => {
+        for (let i = 0; i < maxRetries; i++) {
+          try {
+            return await operation();
+          } catch (error) {
+            if (error.message && error.message.includes('429')) {
+              const waitTime = 2000 * Math.pow(2, i); // 2s, 4s, 8s
+              console.warn(`Rate limited (429). Waiting ${waitTime}ms before retry ${i + 1}...`);
+              await delay(waitTime);
+              continue;
+            }
+            throw error;
+          }
+        }
+        throw new Error('Max retries exceeded');
+      };
+
+      // Iterate through all groups and check if user is admin
       for (let i = 0; i < totalGroups; i++) {
         try {
-          const groupAddress = await this.getGroupByIndex(BigInt(i));
+          const groupAddress = await retryOperation(() => this.getGroupByIndex(BigInt(i)));
           if (!groupAddress) continue;
 
-          const factoryAddress = Address.parse(FACTORY_ADDRESS);
-          const result = await client.runMethod(factoryAddress, 'getGroupInfo', [
-            { type: 'int', value: BigInt(i) },
-          ]);
+          // Get group info from the GroupVault contract (not factory)
+          const groupVault = await import('./groupVault');
+          const groupInfo = await retryOperation(() => groupVault.default.getGroupInfo(groupAddress));
 
-          if (result.exitCode === 0) {
-            const groupInfo = {
-              address: groupAddress,
-              index: i,
-              groupHash: result.stack.readBigNumber().toString(),
-              groupName: result.stack.readString(),
-              adminAddress: result.stack.readAddress().toString(),
+          if (groupInfo) {
+            // Normalize addresses for comparison
+            const normalizeAddress = (addr) => {
+              try {
+                return Address.parse(addr).toRawString();
+              } catch (e) {
+                return addr.toLowerCase();
+              }
             };
 
-            // Add if user is admin (we'll check membership in GroupVault later)
-            if (groupInfo.adminAddress.toLowerCase() === userAddress.toLowerCase()) {
-              userGroups.push(groupInfo);
+            const groupAdmin = normalizeAddress(groupInfo.adminAddress);
+            const userAddr = normalizeAddress(userAddress);
+
+            console.log(`Group ${i} admin check:`, {
+              groupAdmin: groupInfo.adminAddress,
+              groupAdminRaw: groupAdmin,
+              userAddr: userAddress,
+              userAddrRaw: userAddr,
+              match: groupAdmin === userAddr
+            });
+
+            // Add if user is admin
+            if (groupAdmin === userAddr) {
+              userGroups.push({
+                address: groupAddress,
+                name: groupInfo.groupName || 'Unnamed Group',
+                members: Number(groupInfo.memberCount),
+                isActive: groupInfo.isActive,
+                adminAddress: groupInfo.adminAddress,
+                groupHash: groupInfo.groupHash,
+              });
             }
+          }
+
+          // Add delay to avoid rate limiting (except for last iteration)
+          if (i < totalGroups - 1) {
+            await delay(1000); // Increased to 1 second
           }
         } catch (error) {
           console.error(`Error loading group ${i}:`, error);
@@ -179,6 +244,12 @@ class GroupVaultFactoryService {
         }
       }
 
+      // Cache the results
+      this.cache.userGroups = userGroups;
+      this.cache.userGroupsAddress = userAddress;
+      this.cache.userGroupsTimestamp = Date.now();
+
+      console.log(`Found ${userGroups.length} groups for user`);
       return userGroups;
     } catch (error) {
       console.error('Error getting user groups:', error);

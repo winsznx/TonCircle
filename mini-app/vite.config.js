@@ -29,7 +29,8 @@ export default defineConfig({
     port: 3001,
     host: '0.0.0.0',
     strictPort: false,
-    allowedHosts: ['.trycloudflare.com']
+    hmr: false, // Disable HMR for cloudflare tunnel compatibility
+    allowedHosts: ['.trycloudflare.com', 'jovanni-unpredicted-mournfully.ngrok-free.dev']
   },
   build: {
     outDir: 'dist',
