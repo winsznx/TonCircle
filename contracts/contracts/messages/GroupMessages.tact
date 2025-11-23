@@ -54,6 +54,7 @@ message(0x2007) RecordExpense {
     paidBy: Address;
     splitBetween: Cell; // Cell containing array of Address
     splitAmounts: Cell; // Cell containing array of Int
+    currency: Address?; // null for TON
 }
 
 /// Message for settling a debt
@@ -62,6 +63,7 @@ message(0x2008) GroupSettleDebt {
     amount: Int;
     creditor: Address;
     settlementId: Int;
+    currency: Address?; // null for TON
 }
 
 /// Message for updating group settings
@@ -141,6 +143,7 @@ message(0x2084) ExpenseInfoResponse {
     splitAmounts: Cell; // Cell containing array of Int
     createdAt: Int;
     isSettled: Bool;
+    currency: Address?;
 }
 
 /// Response message for debt information
@@ -151,4 +154,5 @@ message(0x2085) DebtInfoResponse {
     amount: Int;
     createdAt: Int;
     isSettled: Bool;
+    currency: Address?;
 }

@@ -43,7 +43,7 @@ contract GroupVaultFactory with GroupUtils, MathUtils, EventUtils, CryptoUtils {
         require(self.isValidAddress(msg.adminAddress), "Invalid admin address");
         
         // Check registration fee
-        require(context().value >= self.registrationFee + ton("0.1"), "Insufficient registration fee");
+        require(context().value >= self.registrationFee + ton("0.2"), "Insufficient registration fee");
         
         // Create GroupVault contract with new initialization pattern
         let groupVaultInit = initOf GroupVault(self.groupCount, myAddress());
@@ -52,7 +52,7 @@ contract GroupVaultFactory with GroupUtils, MathUtils, EventUtils, CryptoUtils {
         // Deploy the GroupVault contract
         deploy(DeployParameters {
             init: groupVaultInit,
-            value: ton("0.1"),
+            value: ton("0.2"),
             body: UpdateGroupInitialization {
                 groupHash: msg.groupHash,
                 groupName: msg.groupName,

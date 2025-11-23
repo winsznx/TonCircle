@@ -41,6 +41,7 @@ struct ExpenseInfo {
     splitAmounts: Cell; // Cell containing array of Int
     createdAt: Int;
     isSettled: Bool;
+    currency: Address?; // null for TON, address for Jetton Master
 }
 
 /// Debt information structure
@@ -53,6 +54,7 @@ struct DebtInfo {
     dueDate: Int?;
     isSettled: Bool;
     reason: String;
+    currency: Address?; // null for TON, address for Jetton Master
 }
 
 /// Escrow information structure

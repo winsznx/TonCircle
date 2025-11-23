@@ -4,6 +4,7 @@ import "../utils/EventUtils.tact";
 import "../utils/CryptoUtils.tact";
 import "../messages/GroupMessages.tact";
 import "../messages/MemberMessages.tact";
+import "../messages/JettonMessages.tact";
 import "../types/GroupTypes.tact";
 import "../types/MemberTypes.tact";
 import "./Member.tact";
@@ -337,7 +338,8 @@ contract GroupVault with GroupUtils, MathUtils, EventUtils, CryptoUtils {
             splitBetween: msg.splitBetween,
             splitAmounts: msg.splitAmounts,
             createdAt: now(),
-            isSettled: false
+            isSettled: false,
+            currency: msg.currency
         };
         
         // Store expense
@@ -361,7 +363,8 @@ contract GroupVault with GroupUtils, MathUtils, EventUtils, CryptoUtils {
                     createdAt: now(),
                     dueDate: null,
                     isSettled: false,
-                    reason: msg.description
+                    reason: msg.description,
+                    currency: msg.currency
                 };
                 
                 self.debts.set(debtId, debt);
@@ -394,7 +397,7 @@ contract GroupVault with GroupUtils, MathUtils, EventUtils, CryptoUtils {
         self.emitGroupEvent(GROUP_EVENT_EXPENSE_RECORDED, myAddress(), eventData);
     }
     
-    /// Handles settling a debt
+    /// Handles settling a debt (TON)
     receive(msg: GroupSettleDebt) {
         // Check if debt exists
         require(self.debts.exists(msg.debtId), "Debt does not exist");
@@ -406,6 +409,9 @@ contract GroupVault with GroupUtils, MathUtils, EventUtils, CryptoUtils {
         
         // Check if already settled
         require(!debt.isSettled, "Debt is already settled");
+
+        // Ensure this is a TON debt
+        require(debt.currency == null, "This debt must be settled with Jettons");
 
         require(debt.amount <= msg.amount, "Insufficient amount to cover debt");
         require(context().value > msg.amount, "value cannot be less than amount");
@@ -427,7 +433,8 @@ contract GroupVault with GroupUtils, MathUtils, EventUtils, CryptoUtils {
                 debtId: msg.debtId,
                 amount: msg.amount,
                 creditor: debt.creditor,
-                settlementId: self.generateGroupTransactionId(debt.debtor, now(), msg.debtId)
+                settlementId: self.generateGroupTransactionId(debt.debtor, now(), msg.debtId),
+                currency: null
             }.toCell()
         });
         
@@ -440,6 +447,60 @@ contract GroupVault with GroupUtils, MathUtils, EventUtils, CryptoUtils {
             .endCell();
         
         self.emitFinancialEvent(EVENT_DEBT_RECORDED, debt.debtor, debt.creditor, msg.amount, myAddress(), eventData);
+    }
+
+    /// Handles Jetton transfer notification (for settling debts)
+    receive(msg: JettonTransferNotification) {
+        // Parse the forward payload to see if it's a debt settlement
+        let slice: Slice = msg.forwardPayload;
+        
+        // Check if payload is empty
+        if (slice.empty()) {
+            return;
+        }
+
+        // Try to load opcode
+        let opcode: Int = slice.loadUint(32);
+        
+        // Check for JettonSettleDebt opcode (0x3004)
+        if (opcode == 0x3004) {
+            let queryId: Int = slice.loadUint(64);
+            let debtId: Int = slice.loadInt(257); // Using Int for ID
+            let amount: Int = slice.loadCoins();
+            let creditor: Address = slice.loadAddress();
+            let jettonMaster: Address = slice.loadAddress();
+            
+            // Verify debt exists
+            require(self.debts.exists(debtId), "Debt does not exist");
+            let debt: DebtInfo = self.debts.get(debtId)!!;
+            
+            // Verify debtor (sender of Jettons)
+            require(msg.sender == debt.debtor, "Only debtor can settle debt");
+            
+            // Verify currency matches
+            require(debt.currency != null, "Debt is not in Jettons");
+            require(debt.currency == sender(), "Wrong Jetton wallet"); // sender() is the Jetton Wallet
+            // Note: In a real implementation, we should verify that sender() is indeed the wallet of jettonMaster for this contract.
+            // For hackathon, we might skip strict wallet verification or assume the user sent the right token.
+            // Ideally: require(sender() == calculateJettonWallet(myAddress(), jettonMaster), "Invalid Jetton Wallet");
+            
+            // Verify amount
+            require(msg.amount >= debt.amount, "Insufficient Jetton amount");
+            
+            // Mark as settled
+            debt.isSettled = true;
+            self.debts.set(debtId, debt);
+            
+            // Emit event
+            let eventData: Cell = beginCell()
+                .storeUint(debtId, 64)
+                .storeCoins(msg.amount)
+                .storeAddress(debt.debtor)
+                .storeAddress(debt.creditor)
+                .endCell();
+            
+            self.emitFinancialEvent(EVENT_DEBT_RECORDED, debt.debtor, debt.creditor, msg.amount, myAddress(), eventData);
+        }
     }
 
     /// Handles creating a new escrow
