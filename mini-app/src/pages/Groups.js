@@ -1,26 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
 import { useTelegram } from '../hooks/useTelegram';
-import { Users, Plus, Settings, AlertCircle, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Users, Plus, Settings, AlertCircle, Loader2, CheckCircle, XCircle, UserPlus } from 'lucide-react';
 import { groupVaultFactory, groupVault } from '../services/contracts';
 import { getExplorerUrl } from '../config/contracts';
+import { useGroup } from '../contexts/GroupContext';
 
 export function Groups() {
   const [tonConnectUI] = useTonConnectUI();
   const address = useTonAddress();
   const { user } = useTelegram();
+  const { currentGroup, groups: contextGroups, selectGroup, refreshGroups } = useGroup();
 
   const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [showJoinGroup, setShowJoinGroup] = useState(false);
+  const [selectedGroupForJoin, setSelectedGroupForJoin] = useState(null);
   const [groupName, setGroupName] = useState('');
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [joining, setJoining] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     loadGroups();
   }, [address]);
+
+  // Sync local groups with context groups
+  useEffect(() => {
+    if (contextGroups && contextGroups.length > 0) {
+      // Context groups are already loaded, use them
+      setGroups(contextGroups);
+      setLoading(false);
+    }
+  }, [contextGroups]);
 
   async function loadGroups() {
     if (!address) {
@@ -81,13 +95,16 @@ export function Groups() {
       });
 
       if (result.success) {
-        setSuccessMessage('Group created successfully!');
+        setSuccessMessage('Group created successfully! You are now the admin.');
         setTimeout(() => setSuccessMessage(''), 5000);
         setShowCreateGroup(false);
         setGroupName('');
 
-        // Reload groups after a delay
-        setTimeout(() => loadGroups(), 3000);
+        // Reload groups and refresh context
+        setTimeout(async () => {
+          await loadGroups();
+          await refreshGroups();
+        }, 3000);
       } else {
         setError(result.error || 'Failed to create group');
       }
@@ -97,6 +114,54 @@ export function Groups() {
     } finally {
       setCreating(false);
     }
+  }
+
+  async function handleJoinGroup(e) {
+    e.preventDefault();
+    if (!address || !selectedGroupForJoin) return;
+
+    try {
+      setJoining(true);
+      setError(null);
+
+      // Add member to the group (this will deploy a Member contract)
+      const result = await groupVault.addMember({
+        groupAddress: selectedGroupForJoin.address,
+        memberAddress: address,
+        sendTransaction: tonConnectUI.sendTransaction
+      });
+
+      if (result.success) {
+        setSuccessMessage('Successfully joined the group! Your member contract is being deployed.');
+        setTimeout(() => setSuccessMessage(''), 5000);
+        setShowJoinGroup(false);
+        setSelectedGroupForJoin(null);
+
+        // Reload groups
+        setTimeout(async () => {
+          await loadGroups();
+          await refreshGroups();
+        }, 3000);
+      } else {
+        setError(result.error || 'Failed to join group');
+      }
+    } catch (err) {
+      console.error('Error joining group:', err);
+      setError(err.message || 'Failed to join group');
+    } finally {
+      setJoining(false);
+    }
+  }
+
+  function handleSelectGroup(group) {
+    selectGroup(group);
+    setSuccessMessage(`Selected: ${group.name}`);
+    setTimeout(() => setSuccessMessage(''), 3000);
+  }
+
+  function handleOpenJoinModal(group) {
+    setSelectedGroupForJoin(group);
+    setShowJoinGroup(true);
   }
 
   return (
@@ -139,6 +204,70 @@ export function Groups() {
           <p className="text-yellow-800 dark:text-yellow-400">
             Please connect your wallet to manage groups
           </p>
+        </div>
+      )}
+
+      {/* Join Group Modal */}
+      {showJoinGroup && selectedGroupForJoin && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-neutral-900 rounded-lg p-6 max-w-md w-full border border-gray-200 dark:border-neutral-800">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Join Group
+            </h3>
+            <form onSubmit={handleJoinGroup}>
+              <div className="mb-4">
+                <p className="text-gray-700 dark:text-gray-300 mb-2">
+                  You are about to join:
+                </p>
+                <div className="bg-gray-50 dark:bg-neutral-800 rounded-lg p-3 border border-gray-200 dark:border-neutral-700">
+                  <p className="font-semibold text-gray-900 dark:text-white">
+                    {selectedGroupForJoin.name}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {selectedGroupForJoin.members} members
+                  </p>
+                </div>
+              </div>
+              <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                <p>This will:</p>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  <li>Deploy your Member contract (~0.05 TON + gas)</li>
+                  <li>Register you as a member of this group</li>
+                  <li>Allow you to participate in group activities</li>
+                </ul>
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowJoinGroup(false);
+                    setSelectedGroupForJoin(null);
+                  }}
+                  disabled={joining}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!address || joining}
+                  className="flex-1 px-4 py-2 bg-blue-800 dark:bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-900 dark:hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                >
+                  {joining ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Joining...</span>
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4" />
+                      <span>Join Group</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
@@ -233,21 +362,43 @@ export function Groups() {
                       {group.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </div>
-                  <div className="flex items-center space-x-4 text-sm">
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-neutral-800">
                     <a
                       href={getExplorerUrl(group.address)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-800 dark:text-blue-600 hover:underline font-medium"
+                      className="text-sm text-blue-800 dark:text-blue-600 hover:underline font-medium"
                     >
                       View on Explorer
                     </a>
-                    {group.adminAddress === address && (
-                      <span className="flex items-center space-x-1 text-gray-600 dark:text-gray-400">
-                        <Settings className="w-4 h-4" />
-                        <span>Admin</span>
-                      </span>
-                    )}
+                    <div className="flex items-center space-x-2">
+                      {group.adminAddress === address ? (
+                        <span className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-400 mr-2">
+                          <Settings className="w-4 h-4" />
+                          <span>Admin</span>
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => handleOpenJoinModal(group)}
+                          disabled={joining}
+                          className="px-3 py-1.5 text-sm bg-green-600 dark:bg-green-500 text-white rounded-lg font-medium hover:bg-green-700 dark:hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center space-x-1"
+                        >
+                          <UserPlus className="w-4 h-4" />
+                          <span>Join</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleSelectGroup(group)}
+                        disabled={currentGroup?.address === group.address}
+                        className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${
+                          currentGroup?.address === group.address
+                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 cursor-not-allowed'
+                            : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-neutral-700'
+                        }`}
+                      >
+                        {currentGroup?.address === group.address ? 'Selected' : 'Select'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

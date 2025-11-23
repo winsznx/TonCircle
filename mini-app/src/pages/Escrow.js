@@ -1,9 +1,17 @@
-import { useState } from 'react';
-import { useTonAddress } from '@tonconnect/ui-react';
+import React, { useState, useEffect } from 'react';
+import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
+import { beginCell, toNano } from '@ton/core';
+import { Lock, Shield, Clock, CheckCircle2, XCircle, AlertCircle, Users } from 'lucide-react';
+import { GAS_AMOUNTS } from '../config/contracts';
+import { useGroup } from '../contexts/GroupContext';
 
 export function Escrow() {
+  const [tonConnectUI] = useTonConnectUI();
   const address = useTonAddress();
+  const { currentGroup } = useGroup();
   const [showCreateEscrow, setShowCreateEscrow] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [escrows, setEscrows] = useState([]);
   const [escrowData, setEscrowData] = useState({
     amount: '',
     recipient: '',
@@ -12,46 +20,167 @@ export function Escrow() {
     description: ''
   });
 
-  const [escrows, setEscrows] = useState([
-    // Mock data - will be replaced with contract data
-    {
-      id: 1,
-      description: 'Venue Deposit Payment',
-      amount: 100,
-      recipient: 'EQD...xyz',
-      requiredSignatures: 3,
-      currentSignatures: 2,
-      signers: ['Alice', 'Bob'],
-      deadline: '2025-02-28',
-      status: 'pending',
-      createdAt: '2025-01-15'
-    },
-    {
-      id: 2,
-      description: 'Equipment Purchase',
-      amount: 50,
-      recipient: 'EQD...abc',
-      requiredSignatures: 2,
-      currentSignatures: 2,
-      signers: ['Alice', 'Charlie'],
-      deadline: '2025-01-30',
-      status: 'released',
-      createdAt: '2025-01-10'
-    },
-  ]);
+  // Load escrows from contract
+  useEffect(() => {
+    async function loadEscrows() {
+      if (!address) {
+        setLoading(false);
+        return;
+      }
 
-  const handleCreateEscrow = (e) => {
+      try {
+        setLoading(true);
+
+        if (currentGroup && currentGroup.address) {
+          // Load escrows from GroupVault contract
+          const escrowData = await groupVault.getEscrows(currentGroup.address);
+          setEscrows(escrowData || []);
+        }
+      } catch (error) {
+        console.error('Error loading escrows:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadEscrows();
+  }, [address, currentGroup]);
+
+  const handleCreateEscrow = async (e) => {
     e.preventDefault();
-    // TODO: Implement contract interaction
-    console.log('Creating escrow:', escrowData);
-    setShowCreateEscrow(false);
-    setEscrowData({
-      amount: '',
-      recipient: '',
-      requiredSignatures: 2,
-      deadline: '',
-      description: ''
-    });
+
+    if (!address || !tonConnectUI) {
+      alert('Please connect your wallet');
+      return;
+    }
+
+    try {
+      if (!currentGroup || !currentGroup.address) {
+        alert('Please select a group first');
+        return;
+      }
+
+      const deadlineTimestamp = Math.floor(new Date(escrowData.deadline).getTime() / 1000);
+
+      const result = await groupVault.createEscrow({
+        groupAddress: currentGroup.address,
+        description: escrowData.description,
+        amount: escrowData.amount,
+        recipientAddress: escrowData.recipient,
+        requiredSignatures: escrowData.requiredSignatures,
+        deadline: deadlineTimestamp,
+        sendTransaction: tonConnectUI.sendTransaction
+      });
+
+      if (result.success) {
+        setShowCreateEscrow(false);
+        setEscrowData({
+          amount: '',
+          recipient: '',
+          requiredSignatures: 2,
+          deadline: '',
+          description: ''
+        });
+
+        // Reload escrows
+        setTimeout(() => window.location.reload(), 2000);
+      } else {
+        alert(result.error || 'Failed to create escrow');
+      }
+    } catch (error) {
+      console.error('Error creating escrow:', error);
+      alert('Failed to create escrow. Please try again.');
+    }
+  };
+
+  const handleApproveEscrow = async (escrowId) => {
+    if (!address || !tonConnectUI) {
+      alert('Please connect your wallet');
+      return;
+    }
+
+    try {
+      if (!currentGroup || !currentGroup.address) {
+        alert('Please select a group first');
+        return;
+      }
+
+      const result = await groupVault.approveEscrow({
+        groupAddress: currentGroup.address,
+        escrowId,
+        sendTransaction: tonConnectUI.sendTransaction
+      });
+
+      if (result.success) {
+        // Reload escrows
+        setTimeout(() => window.location.reload(), 2000);
+      } else {
+        alert(result.error || 'Failed to approve escrow');
+      }
+    } catch (error) {
+      console.error('Error approving escrow:', error);
+      alert('Failed to approve escrow. Please try again.');
+    }
+  };
+
+  const handleReleaseEscrow = async (escrowId) => {
+    if (!address || !tonConnectUI) {
+      alert('Please connect your wallet');
+      return;
+    }
+
+    try {
+      if (!currentGroup || !currentGroup.address) {
+        alert('Please select a group first');
+        return;
+      }
+
+      const result = await groupVault.releaseEscrow({
+        groupAddress: currentGroup.address,
+        escrowId,
+        sendTransaction: tonConnectUI.sendTransaction
+      });
+
+      if (result.success) {
+        // Reload escrows
+        setTimeout(() => window.location.reload(), 2000);
+      } else {
+        alert(result.error || 'Failed to release escrow');
+      }
+    } catch (error) {
+      console.error('Error releasing escrow:', error);
+      alert('Failed to release escrow. Please try again.');
+    }
+  };
+
+  const handleRefundEscrow = async (escrowId) => {
+    if (!address || !tonConnectUI) {
+      alert('Please connect your wallet');
+      return;
+    }
+
+    try {
+      if (!currentGroup || !currentGroup.address) {
+        alert('Please select a group first');
+        return;
+      }
+
+      const result = await groupVault.refundEscrow({
+        groupAddress: currentGroup.address,
+        escrowId,
+        sendTransaction: tonConnectUI.sendTransaction
+      });
+
+      if (result.success) {
+        // Reload escrows
+        setTimeout(() => window.location.reload(), 2000);
+      } else {
+        alert(result.error || 'Failed to refund escrow');
+      }
+    } catch (error) {
+      console.error('Error refunding escrow:', error);
+      alert('Failed to refund escrow. Please try again.');
+    }
   };
 
   const calculateProgress = (current, required) => {
@@ -59,39 +188,58 @@ export function Escrow() {
   };
 
   const getStatusColor = (status) => {
+    // status: 0=pending, 1=released, 2=refunded
     switch (status) {
-      case 'pending':
+      case 0:
         return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400';
-      case 'released':
+      case 1:
         return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400';
-      case 'refunded':
+      case 2:
         return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400';
       default:
         return 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-400';
     }
   };
 
+  const getStatusText = (status) => {
+    switch (status) {
+      case 0:
+        return 'pending';
+      case 1:
+        return 'released';
+      case 2:
+        return 'refunded';
+      default:
+        return 'unknown';
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Escrow
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Multi-signature escrow for secure group payments
-          </p>
+        <div className="flex items-center space-x-3">
+          <Lock className="w-8 h-8 text-blue-800 dark:text-blue-600" />
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Escrow
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Multi-signature escrow for secure group payments
+            </p>
+          </div>
         </div>
         <button
           onClick={() => setShowCreateEscrow(true)}
-          className="px-4 py-2 bg-blue-800 dark:bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-900 dark:hover:bg-blue-700 transition-colors"
+          disabled={!address}
+          className="px-4 py-2 bg-blue-800 dark:bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-900 dark:hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Create Escrow
         </button>
       </div>
 
       {!address ? (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6 flex items-start space-x-3">
+          <AlertCircle className="w-5 h-5 text-yellow-800 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
           <p className="text-yellow-800 dark:text-yellow-400">
             Please connect your wallet to manage escrows
           </p>
@@ -186,7 +334,7 @@ export function Escrow() {
                   className="flex-1 px-4 py-2 bg-blue-800 dark:bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-900 dark:hover:bg-blue-700 transition-colors"
                   disabled={!address}
                 >
-                  Create
+                  Create Escrow
                 </button>
               </div>
             </form>
@@ -195,8 +343,14 @@ export function Escrow() {
       )}
 
       {/* Escrows List */}
-      <div className="space-y-4">
-        {escrows.map((escrow) => {
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-800 dark:border-blue-600"></div>
+          <p className="text-gray-600 dark:text-gray-400 mt-4">Loading escrows...</p>
+        </div>
+      ) : escrows.length > 0 ? (
+        <div className="space-y-4">
+          {escrows.map((escrow) => {
           const progress = calculateProgress(escrow.currentSignatures, escrow.requiredSignatures);
           const daysLeft = Math.ceil((new Date(escrow.deadline) - new Date()) / (1000 * 60 * 60 * 24));
 
@@ -207,19 +361,33 @@ export function Escrow() {
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                    {escrow.description}
-                  </h3>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Shield className="w-5 h-5 text-blue-800 dark:text-blue-600" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {escrow.description}
+                    </h3>
+                  </div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {escrow.amount} TON • To: {escrow.recipient.substring(0, 8)}...
+                    {escrow.amountTON} TON • To: {escrow.recipient.substring(0, 8)}...
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                    Created: {new Date(escrow.createdAt).toLocaleDateString()}
-                    {escrow.status === 'pending' && daysLeft > 0 && ` • ${daysLeft} days left`}
-                  </p>
+                  <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-500 mt-1">
+                    <span className="flex items-center space-x-1">
+                      <Clock className="w-3 h-3" />
+                      <span>Created: {new Date(escrow.createdAt).toLocaleDateString()}</span>
+                    </span>
+                    {escrow.status === 0 && daysLeft > 0 && (
+                      <span>{daysLeft} days left</span>
+                    )}
+                  </div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(escrow.status)}`}>
-                  {escrow.status.charAt(0).toUpperCase() + escrow.status.slice(1)}
+                <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${getStatusColor(escrow.status)}`}>
+                  {escrow.status === 1 ? (
+                    <><CheckCircle2 className="w-3 h-3" /> <span>Released</span></>
+                  ) : escrow.status === 2 ? (
+                    <><XCircle className="w-3 h-3" /> <span>Refunded</span></>
+                  ) : (
+                    <><Clock className="w-3 h-3" /> <span>Pending</span></>
+                  )}
                 </span>
               </div>
 
@@ -239,9 +407,12 @@ export function Escrow() {
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                {escrow.signers.length > 0 && (
+                {escrow.signers && escrow.signers.length > 0 && (
                   <div className="flex items-center flex-wrap gap-2 mt-2">
-                    <span className="text-xs text-gray-600 dark:text-gray-400">Signed by:</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-400 flex items-center space-x-1">
+                      <Users className="w-3 h-3" />
+                      <span>Signed by:</span>
+                    </span>
                     {escrow.signers.map((signer, idx) => (
                       <span
                         key={idx}
@@ -256,17 +427,26 @@ export function Escrow() {
 
               {/* Actions */}
               <div className="flex items-center space-x-3 pt-3 border-t border-gray-200 dark:border-neutral-800">
-                {escrow.status === 'pending' && (
+                {escrow.status === 0 && (
                   <>
-                    <button className="px-4 py-2 bg-blue-800 dark:bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-900 dark:hover:bg-blue-700 transition-colors">
+                    <button
+                      onClick={() => handleApproveEscrow(escrow.id)}
+                      className="px-4 py-2 bg-blue-800 dark:bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-900 dark:hover:bg-blue-700 transition-colors"
+                    >
                       Approve
                     </button>
                     {escrow.currentSignatures >= escrow.requiredSignatures && (
-                      <button className="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-700 dark:hover:bg-green-600 transition-colors">
+                      <button
+                        onClick={() => handleReleaseEscrow(escrow.id)}
+                        className="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
+                      >
                         Release Funds
                       </button>
                     )}
-                    <button className="px-4 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">
+                    <button
+                      onClick={() => handleRefundEscrow(escrow.id)}
+                      className="px-4 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                    >
                       Refund
                     </button>
                   </>
@@ -278,13 +458,10 @@ export function Escrow() {
             </div>
           );
         })}
-      </div>
-
-      {escrows.length === 0 && (
+        </div>
+      ) : (
         <div className="text-center py-12">
-          <svg className="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
+          <Lock className="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
             No escrows yet
           </h3>
@@ -293,7 +470,8 @@ export function Escrow() {
           </p>
           <button
             onClick={() => setShowCreateEscrow(true)}
-            className="px-4 py-2 bg-blue-800 dark:bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-900 dark:hover:bg-blue-700 transition-colors"
+            disabled={!address}
+            className="px-4 py-2 bg-blue-800 dark:bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-900 dark:hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Create Escrow
           </button>
