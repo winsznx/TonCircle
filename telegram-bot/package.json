@@ -1,17 +1,22 @@
 {
   "name": "telegram-bot",
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "description": "TON Circle Telegram Bot - Group expense manager on TON Blockchain",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "db:setup": "psql -U postgres -c 'CREATE DATABASE toncircle;' && psql -U postgres -d toncircle -f src/database/schema.sql",
+    "db:reset": "psql -U postgres -c 'DROP DATABASE IF EXISTS toncircle;' && npm run db:setup"
   },
   "dependencies": {
     "node-telegram-bot-api": "^0.66.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "@ton/ton": "^13.9.0",
+    "@ton/core": "^0.53.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
