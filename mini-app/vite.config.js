@@ -1,19 +1,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
   plugins: [
     react(),
-    {
-      name: 'disable-host-check',
-      configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-          // Allow all hosts for tunneling (ngrok, cloudflare, etc.)
-          req.headers.host = 'localhost:3001';
-          next();
-        });
-      }
-    }
+    nodePolyfills({
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+    }),
   ],
   esbuild: {
     loader: 'jsx',
@@ -28,16 +26,10 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3000,
+    port: 3001,
     host: '0.0.0.0',
     strictPort: false,
-    hmr: {
-      clientPort: 443,
-      protocol: 'wss'
-    },
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    }
+    allowedHosts: ['.trycloudflare.com']
   },
   build: {
     outDir: 'dist',

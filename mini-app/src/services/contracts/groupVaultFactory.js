@@ -136,6 +136,55 @@ class GroupVaultFactoryService {
   getFactoryAddress() {
     return FACTORY_ADDRESS;
   }
+
+  /**
+   * Get all groups for a user (admin or member)
+   * @param {string} userAddress - User's TON address
+   * @returns {Promise<Array>} Array of group objects
+   */
+  async getUserGroups(userAddress) {
+    try {
+      const client = await getTonClient();
+      const totalGroups = await this.getTotalGroups();
+      const userGroups = [];
+
+      // Iterate through all groups and check if user is admin or member
+      for (let i = 0; i < totalGroups; i++) {
+        try {
+          const groupAddress = await this.getGroupByIndex(BigInt(i));
+          if (!groupAddress) continue;
+
+          const factoryAddress = Address.parse(FACTORY_ADDRESS);
+          const result = await client.runMethod(factoryAddress, 'getGroupInfo', [
+            { type: 'int', value: BigInt(i) },
+          ]);
+
+          if (result.exitCode === 0) {
+            const groupInfo = {
+              address: groupAddress,
+              index: i,
+              groupHash: result.stack.readBigNumber().toString(),
+              groupName: result.stack.readString(),
+              adminAddress: result.stack.readAddress().toString(),
+            };
+
+            // Add if user is admin (we'll check membership in GroupVault later)
+            if (groupInfo.adminAddress.toLowerCase() === userAddress.toLowerCase()) {
+              userGroups.push(groupInfo);
+            }
+          }
+        } catch (error) {
+          console.error(`Error loading group ${i}:`, error);
+          continue;
+        }
+      }
+
+      return userGroups;
+    } catch (error) {
+      console.error('Error getting user groups:', error);
+      return [];
+    }
+  }
 }
 
 export default new GroupVaultFactoryService();

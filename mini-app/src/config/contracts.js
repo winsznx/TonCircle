@@ -8,7 +8,8 @@
 export const NETWORK = import.meta.env.VITE_TON_NETWORK || 'testnet';
 
 // Factory contract address - DEPLOYED TO TESTNET
-export const FACTORY_ADDRESS = import.meta.env.VITE_FACTORY_ADDRESS || 'EQDl2F_jqOyubk6rNsGb_-bhUzipHlkZg6A2MtSshylSihK2';
+// Deployed: 2025-11-23
+export const FACTORY_ADDRESS = import.meta.env.VITE_FACTORY_ADDRESS || 'EQDU7ANbVtUxcw79x7dFfltROR2hNYGefwBIzdPEm33wKbs9';
 
 // Contract opcodes for reference
 export const OPCODES = {
