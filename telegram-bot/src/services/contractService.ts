@@ -297,9 +297,23 @@ export class ContractService {
    */
   async resolveUsername(username: string): Promise<string | null> {
     try {
-      // TON DNS resolution
-      // This would use TON DNS contract to resolve username.ton -> address
-      // For now, return null (placeholder for future implementation)
+      // Remove @ if present
+      const cleanUsername = username.replace('@', '');
+      
+      // If it's already an address, return it
+      if (cleanUsername.length > 40) return cleanUsername;
+
+      // For .ton domains
+      if (cleanUsername.endsWith('.ton')) {
+         // In a real app, we would query the root DNS contract
+         // For this hackathon, we'll assume it's a raw address if it fails validation
+         return null; 
+      }
+      
+      // TODO: Implement actual TON DNS resolution
+      // const wallet = await this.client.getDnsLast(cleanUsername + '.ton');
+      // return wallet?.address?.toString() || null;
+      
       return null;
     } catch (error) {
       console.error('Error resolving username:', error);
@@ -312,9 +326,8 @@ export class ContractService {
    */
   async getUsernameForAddress(address: string): Promise<string | null> {
     try {
-      // TON DNS reverse lookup
-      // This would check if an address has a registered .ton domain
-      // Placeholder for future implementation
+      // In a real implementation, we would query an indexer or API
+      // that maps addresses to domains (like tonapi.io)
       return null;
     } catch (error) {
       console.error('Error getting username for address:', error);

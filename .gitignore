@@ -40,6 +40,9 @@ Thumbs.db
 # Keep essential documentation
 !README.md
 !instructions.md
+!TON Vault_TON Circle - Complete Development Workflow.md
+!PROJECT_STATUS.md
+!BOT_INTEGRATION_COMPLETE.md
 
 # Temporary files
 *.tmp

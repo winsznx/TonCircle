@@ -139,6 +139,12 @@ importers:
 
   telegram-bot:
     dependencies:
+      '@ton/core':
+        specifier: ^0.53.0
+        version: 0.53.0(@ton/crypto@3.3.0)
+      '@ton/ton':
+        specifier: ^13.9.0
+        version: 13.11.2(@ton/core@0.53.0(@ton/crypto@3.3.0))(@ton/crypto@3.3.0)
       dotenv:
         specifier: ^16.3.1
         version: 16.6.1
@@ -1080,6 +1086,11 @@ packages:
       '@ton/sandbox':
         optional: true
 
+  '@ton/core@0.53.0':
+    resolution: {integrity: sha512-tB5RxXFS6Z/ivmsqMn/eebEZmkWXIAz+hS1PDZXhbBkcvnBTknZ12g2AFrZtXyuvpm8O6SbL15UI/3NgkyIWzQ==}
+    peerDependencies:
+      '@ton/crypto': '>=3.2.0'
+
   '@ton/core@0.60.1':
     resolution: {integrity: sha512-8FwybYbfkk57C3l9gvnlRhRBHbLYmeu0LbB1z9N+dhDz0Z+FJW8w0TJlks8CgHrAFxsT3FlR2LsqFnsauMp38w==}
     peerDependencies:
@@ -1164,6 +1175,12 @@ packages:
   '@ton/tolk-js@1.2.0':
     resolution: {integrity: sha512-O7EoC3T4ESnfDT+hOvRBuqotujeDx9a0rGhBjzoAquqVpQFnmW69MMPQRtG8ewn1nvsz3NSeNIJapk64+romCw==}
     hasBin: true
+
+  '@ton/ton@13.11.2':
+    resolution: {integrity: sha512-EPqW+ZTe0MmfqguJEIGMuAqTAFRKMEce95HlDx8h6CGn2y3jiMgV1/oO+WpDIOiX+1wnTu+xtajk8JTWr8nKRQ==}
+    peerDependencies:
+      '@ton/core': '>=0.56.0'
+      '@ton/crypto': '>=3.2.0'
 
   '@ton/ton@15.4.0':
     resolution: {integrity: sha512-f19y2Rez88KZK+lv3CT3ghXi07LcToJtJhlgRSfK+3GzjdIcoW/wbmXG1ffi6fkc8W2LO5z6Q3gZaIEvNGnz6w==}
@@ -5160,6 +5177,11 @@ snapshots:
       - typescript
       - utf-8-validate
 
+  '@ton/core@0.53.0(@ton/crypto@3.3.0)':
+    dependencies:
+      '@ton/crypto': 3.3.0
+      symbol.inspect: 1.0.1
+
   '@ton/core@0.60.1(@ton/crypto@3.3.0)':
     dependencies:
       '@ton/crypto': 3.3.0
@@ -5240,6 +5262,18 @@ snapshots:
   '@ton/tolk-js@1.2.0':
     dependencies:
       arg: 5.0.2
+
+  '@ton/ton@13.11.2(@ton/core@0.53.0(@ton/crypto@3.3.0))(@ton/crypto@3.3.0)':
+    dependencies:
+      '@ton/core': 0.53.0(@ton/crypto@3.3.0)
+      '@ton/crypto': 3.3.0
+      axios: 1.13.2
+      dataloader: 2.2.3
+      symbol.inspect: 1.0.1
+      teslabot: 1.5.0
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - debug
 
   '@ton/ton@15.4.0(@ton/core@0.62.0(@ton/crypto@3.3.0))(@ton/crypto@3.3.0)':
     dependencies:

@@ -95,7 +95,7 @@ export class GroupCommandsHandler {
               inline_keyboard: [[
                 {
                   text: '🚀 Open in App',
-                  web_app: { url: contractService.buildMiniAppLink('/groups') }
+                  url: contractService.buildMiniAppLink('/groups')
                 }
               ]]
             }
@@ -115,15 +115,12 @@ export class GroupCommandsHandler {
             inline_keyboard: [[
               {
                 text: '🚀 Create Group in App',
-                web_app: {
-                  url: contractService.buildMiniAppLink('/groups', {
-                    action: 'create',
-                    name: groupName,
-                    chatId: chatId.toString()
-                  })
-                }
-              }
-            ]]
+                url: contractService.buildMiniAppLink('/groups', {
+                  action: 'create',
+                  name: groupName,
+                  chatId: chatId.toString()
+                })
+              }]]
           }
         }
       );
@@ -197,7 +194,8 @@ export class GroupCommandsHandler {
         `✅ Successfully linked this Telegram group to TON Circle!\n\n` +
         `📛 Group: *${status.groupName}*\n` +
         `👥 Members: ${status.memberCount}\n` +
-        `💰 Balance: ${(status.totalBalance / 1e9).toFixed(2)} TON\n\n` +
+        `💰 Contributions: ${(status.totalContributions / 1e9).toFixed(2)} TON\n` +
+        `💸 Expenses: ${(status.totalExpenses / 1e9).toFixed(2)} TON\n\n` +
         `Contract: \`${contractAddress}\``,
         {
           parse_mode: 'Markdown',
@@ -411,9 +409,9 @@ export class GroupCommandsHandler {
         `📊 *Group Status*\n\n` +
         `📛 Name: *${status.groupName}*\n` +
         `👥 Members: ${status.memberCount}\n` +
-        `💰 Total Balance: ${(status.totalBalance / 1e9).toFixed(2)} TON\n` +
+        `💰 Contributions: ${(status.totalContributions / 1e9).toFixed(2)} TON\n` +
+        `💸 Expenses: ${(status.totalExpenses / 1e9).toFixed(2)} TON\n` +
         `🎯 Goals: ${status.goalCount}\n` +
-        `💵 Expenses: ${status.expenseCount}\n` +
         `📈 Status: ${status.isActive ? '✅ Active' : '❌ Inactive'}\n\n` +
         `Contract: \`${group.contract_address}\``,
         {
