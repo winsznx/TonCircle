@@ -1,0 +1,471 @@
+
+> TonCircle@0.0.1 test:factory
+> ts-node scripts/testRunner.ts --suite GroupVaultFactory
+
+Running GroupVaultFactory test suite...
+Description: Tests for GroupVaultFactory contract including deployment, group registration, settings management, and emergency controls
+
+   > GroupUtilsContract: tact compiler
+   > GroupUtilsContract: func compiler
+   > MathUtilsContract: tact compiler
+   > MathUtilsContract: func compiler
+   > EventUtilsContract: tact compiler
+   > EventUtilsContract: func compiler
+   > CryptoUtilsContract: tact compiler
+   > CryptoUtilsContract: func compiler
+   > Member: tact compiler
+   > Member: func compiler
+   > GroupVault: tact compiler
+   > GroupVault: func compiler
+   > Packaging
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > Member
+   > GroupVault
+   > Bindings
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > Member
+   > GroupVault
+   > Reports
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > Member
+   > GroupVault
+   > GroupUtilsContract: tact compiler
+   > GroupUtilsContract: func compiler
+   > MathUtilsContract: tact compiler
+   > MathUtilsContract: func compiler
+   > EventUtilsContract: tact compiler
+   > EventUtilsContract: func compiler
+   > CryptoUtilsContract: tact compiler
+   > CryptoUtilsContract: func compiler
+(node:6393) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 uncaughtException listeners added to [process]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)
+   > Member: tact compiler
+   > Member: func compiler
+(node:6393) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 unhandledRejection listeners added to [process]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+   > GroupVault: tact compiler
+   > GroupVault: func compiler
+   > GroupVaultFactory: tact compiler
+   > GroupVaultFactory: func compiler
+   > Packaging
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > GroupVault
+   > Member
+   > GroupVaultFactory
+   > Bindings
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > GroupVault
+   > Member
+   > GroupVaultFactory
+   > Reports
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > GroupVault
+   > Member
+   > GroupVaultFactory
+   > GroupUtilsContract: tact compiler
+   > GroupUtilsContract: func compiler
+   > MathUtilsContract: tact compiler
+   > MathUtilsContract: func compiler
+   > EventUtilsContract: tact compiler
+   > EventUtilsContract: func compiler
+   > CryptoUtilsContract: tact compiler
+   > CryptoUtilsContract: func compiler
+   > Member: tact compiler
+   > Member: func compiler
+   > Packaging
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > Member
+   > Bindings
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > Member
+   > Reports
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > Member
+   > GroupUtilsContract: tact compiler
+   > GroupUtilsContract: func compiler
+   > MathUtilsContract: tact compiler
+   > MathUtilsContract: func compiler
+   > EventUtilsContract: tact compiler
+   > EventUtilsContract: func compiler
+   > CryptoUtilsContract: tact compiler
+   > CryptoUtilsContract: func compiler
+   > Member: tact compiler
+   > Member: func compiler
+   > GroupVault: tact compiler
+   > GroupVault: func compiler
+   > GroupVaultFactory: tact compiler
+   > GroupVaultFactory: func compiler
+   > Packaging
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > GroupVault
+   > Member
+   > GroupVaultFactory
+   > Bindings
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > GroupVault
+   > Member
+   > GroupVaultFactory
+   > Reports
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > GroupVault
+   > Member
+   > GroupVaultFactory
+   > GroupUtilsContract: tact compiler
+   > GroupUtilsContract: func compiler
+   > MathUtilsContract: tact compiler
+   > MathUtilsContract: func compiler
+   > EventUtilsContract: tact compiler
+   > EventUtilsContract: func compiler
+   > CryptoUtilsContract: tact compiler
+   > CryptoUtilsContract: func compiler
+   > Member: tact compiler
+   > Member: func compiler
+   > GroupVault: tact compiler
+   > GroupVault: func compiler
+   > Packaging
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > Member
+   > GroupVault
+   > Bindings
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > Member
+   > GroupVault
+   > Reports
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > Member
+   > GroupVault
+   > GroupUtilsContract: tact compiler
+   > GroupUtilsContract: func compiler
+   > MathUtilsContract: tact compiler
+   > MathUtilsContract: func compiler
+   > EventUtilsContract: tact compiler
+   > EventUtilsContract: func compiler
+   > CryptoUtilsContract: tact compiler
+   > CryptoUtilsContract: func compiler
+   > Member: tact compiler
+   > Member: func compiler
+   > Packaging
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > Member
+   > Bindings
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > Member
+   > Reports
+   > GroupUtilsContract
+   > MathUtilsContract
+   > EventUtilsContract
+   > CryptoUtilsContract
+   > Member
+   > GroupUtilsContract: tact compiler
+   > GroupUtilsContract: func compiler
+   > Packaging
+   > GroupUtilsContract
+   > Bindings
+   > GroupUtilsContract
+   > Reports
+   > GroupUtilsContract
+   > MathUtilsContract: tact compiler
+   > MathUtilsContract: func compiler
+   > Packaging
+   > MathUtilsContract
+   > Bindings
+   > MathUtilsContract
+   > Reports
+   > MathUtilsContract
+   > EventUtilsContract: tact compiler
+   > EventUtilsContract: func compiler
+   > Packaging
+   > EventUtilsContract
+   > Bindings
+   > EventUtilsContract
+   > Reports
+   > EventUtilsContract
+   > CryptoUtilsContract: tact compiler
+   > CryptoUtilsContract: func compiler
+   > Packaging
+   > CryptoUtilsContract
+   > Bindings
+   > CryptoUtilsContract
+   > Reports
+   > CryptoUtilsContract
+FAIL tests/GroupVaultFactory.spec.ts (17.76 s)
+  GroupVaultFactory
+    Deployment and Initialization
+      ✓ should deploy successfully with correct initial state (729 ms)
+      ✓ should have correct owner address (340 ms)
+    Group Registration
+      ✕ should register a new group successfully (857 ms)
+      ✕ should fail with insufficient registration fee (316 ms)
+      ✕ should fail with invalid group name (296 ms)
+      ✕ should fail with invalid admin address (302 ms)
+      ✕ should return excess funds to sender (838 ms)
+    Factory Settings Management
+      ✓ should update factory settings successfully by owner (389 ms)
+      ✓ should fail to update settings by non-owner (359 ms)
+      ✕ should allow partial settings update (369 ms)
+    Emergency Controls
+      ✓ should emergency stop factory by owner (946 ms)
+      ✓ should fail to emergency stop by non-owner (510 ms)
+      ✓ should resume factory by owner after emergency stop (430 ms)
+      ✓ should fail to resume by non-owner (413 ms)
+      ✕ should reject group registration when factory is stopped (691 ms)
+    Getter Functions
+      ✓ should return correct factory status (302 ms)
+      ✓ should return correct owner address (303 ms)
+      ✓ should calculate group address by index correctly (300 ms)
+      ✓ should handle multiple group address calculations (708 ms)
+    Edge Cases and Error Handling
+      ✓ should handle empty message gracefully (357 ms)
+      ✕ should handle invalid message type gracefully (285 ms)
+      ✓ should handle zero maxGroupsPerAdmin in settings update (364 ms)
+    Multiple Group Registration
+      ✕ should handle multiple group registrations (826 ms)
+      ✓ should generate unique addresses for each group (379 ms)
+
+  ● GroupVaultFactory › Group Registration › should register a new group successfully
+
+    value is out of range for 257 bits. Got 12345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+      778 |         b_0.storeUint(4097, 32);
+      779 |         b_0.storeStringRefTail(src.groupName);
+    > 780 |         b_0.storeInt(src.groupHash, 257);
+          |             ^
+      781 |         b_0.storeAddress(src.adminAddress);
+      782 |     };
+      783 | }
+
+      at BitBuilder.writeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/BitBuilder.js:158:19)
+      at Builder.storeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:136:20)
+      at build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:780:13
+      at Builder.storeWritable (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:338:13)
+      at Builder.store (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:362:14)
+      at GroupVaultFactory.send (build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:7187:32)
+      at Proxy.<anonymous> (../node_modules/.pnpm/@ton+sandbox@0.39.0_@ton-community+func-js@0.11.0_@ton+core@0.62.0_@ton+crypto@3.3.0__@_3b2aa8ed76017be41be673dd1d29599c/node_modules/@ton/sandbox/dist/blockchain/Blockchain.js:498:45)
+      at Object.<anonymous> (tests/GroupVaultFactory.spec.ts:60:60)
+
+  ● GroupVaultFactory › Group Registration › should fail with insufficient registration fee
+
+    value is out of range for 257 bits. Got 12345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+      778 |         b_0.storeUint(4097, 32);
+      779 |         b_0.storeStringRefTail(src.groupName);
+    > 780 |         b_0.storeInt(src.groupHash, 257);
+          |             ^
+      781 |         b_0.storeAddress(src.adminAddress);
+      782 |     };
+      783 | }
+
+      at BitBuilder.writeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/BitBuilder.js:158:19)
+      at Builder.storeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:136:20)
+      at build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:780:13
+      at Builder.storeWritable (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:338:13)
+      at Builder.store (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:362:14)
+      at GroupVaultFactory.send (build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:7187:32)
+      at Proxy.<anonymous> (../node_modules/.pnpm/@ton+sandbox@0.39.0_@ton-community+func-js@0.11.0_@ton+core@0.62.0_@ton+crypto@3.3.0__@_3b2aa8ed76017be41be673dd1d29599c/node_modules/@ton/sandbox/dist/blockchain/Blockchain.js:498:45)
+      at Object.<anonymous> (tests/GroupVaultFactory.spec.ts:92:60)
+
+  ● GroupVaultFactory › Group Registration › should fail with invalid group name
+
+    value is out of range for 257 bits. Got 12345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+      778 |         b_0.storeUint(4097, 32);
+      779 |         b_0.storeStringRefTail(src.groupName);
+    > 780 |         b_0.storeInt(src.groupHash, 257);
+          |             ^
+      781 |         b_0.storeAddress(src.adminAddress);
+      782 |     };
+      783 | }
+
+      at BitBuilder.writeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/BitBuilder.js:158:19)
+      at Builder.storeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:136:20)
+      at build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:780:13
+      at Builder.storeWritable (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:338:13)
+      at Builder.store (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:362:14)
+      at GroupVaultFactory.send (build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:7187:32)
+      at Proxy.<anonymous> (../node_modules/.pnpm/@ton+sandbox@0.39.0_@ton-community+func-js@0.11.0_@ton+core@0.62.0_@ton+crypto@3.3.0__@_3b2aa8ed76017be41be673dd1d29599c/node_modules/@ton/sandbox/dist/blockchain/Blockchain.js:498:45)
+      at Object.<anonymous> (tests/GroupVaultFactory.spec.ts:113:60)
+
+  ● GroupVaultFactory › Group Registration › should fail with invalid admin address
+
+    value is out of range for 257 bits. Got 12345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+      778 |         b_0.storeUint(4097, 32);
+      779 |         b_0.storeStringRefTail(src.groupName);
+    > 780 |         b_0.storeInt(src.groupHash, 257);
+          |             ^
+      781 |         b_0.storeAddress(src.adminAddress);
+      782 |     };
+      783 | }
+
+      at BitBuilder.writeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/BitBuilder.js:158:19)
+      at Builder.storeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:136:20)
+      at build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:780:13
+      at Builder.storeWritable (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:338:13)
+      at Builder.store (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:362:14)
+      at GroupVaultFactory.send (build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:7187:32)
+      at Proxy.<anonymous> (../node_modules/.pnpm/@ton+sandbox@0.39.0_@ton-community+func-js@0.11.0_@ton+core@0.62.0_@ton+crypto@3.3.0__@_3b2aa8ed76017be41be673dd1d29599c/node_modules/@ton/sandbox/dist/blockchain/Blockchain.js:498:45)
+      at Object.<anonymous> (tests/GroupVaultFactory.spec.ts:134:60)
+
+  ● GroupVaultFactory › Group Registration › should return excess funds to sender
+
+    value is out of range for 257 bits. Got 12345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+      778 |         b_0.storeUint(4097, 32);
+      779 |         b_0.storeStringRefTail(src.groupName);
+    > 780 |         b_0.storeInt(src.groupHash, 257);
+          |             ^
+      781 |         b_0.storeAddress(src.adminAddress);
+      782 |     };
+      783 | }
+
+      at BitBuilder.writeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/BitBuilder.js:158:19)
+      at Builder.storeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:136:20)
+      at build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:780:13
+      at Builder.storeWritable (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:338:13)
+      at Builder.store (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:362:14)
+      at GroupVaultFactory.send (build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:7187:32)
+      at Proxy.<anonymous> (../node_modules/.pnpm/@ton+sandbox@0.39.0_@ton-community+func-js@0.11.0_@ton+core@0.62.0_@ton+crypto@3.3.0__@_3b2aa8ed76017be41be673dd1d29599c/node_modules/@ton/sandbox/dist/blockchain/Blockchain.js:498:45)
+      at Object.<anonymous> (tests/GroupVaultFactory.spec.ts:157:60)
+
+  ● GroupVaultFactory › Factory Settings Management › should allow partial settings update
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2000000000n
+    Received: 0n
+
+      251 |             let factoryStatus = await groupVaultFactory.getGetFactoryStatus();
+      252 |             // Note: maxGroupsPerAdmin is not in the FactoryStatusResponse, it's stored in contract state
+    > 253 |             expect(factoryStatus.registrationFee).toBe(toNano('2')); // Should remain unchanged
+          |                                                   ^
+      254 |
+      255 |             // Update only registrationFee
+      256 |             const updateResult2 = await groupVaultFactory.send(
+
+      at Object.<anonymous> (tests/GroupVaultFactory.spec.ts:253:51)
+
+  ● GroupVaultFactory › Emergency Controls › should reject group registration when factory is stopped
+
+    value is out of range for 257 bits. Got 12345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+      778 |         b_0.storeUint(4097, 32);
+      779 |         b_0.storeStringRefTail(src.groupName);
+    > 780 |         b_0.storeInt(src.groupHash, 257);
+          |             ^
+      781 |         b_0.storeAddress(src.adminAddress);
+      782 |     };
+      783 | }
+
+      at BitBuilder.writeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/BitBuilder.js:158:19)
+      at Builder.storeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:136:20)
+      at build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:780:13
+      at Builder.storeWritable (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:338:13)
+      at Builder.store (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:362:14)
+      at GroupVaultFactory.send (build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:7187:32)
+      at Proxy.<anonymous> (../node_modules/.pnpm/@ton+sandbox@0.39.0_@ton-community+func-js@0.11.0_@ton+core@0.62.0_@ton+crypto@3.3.0__@_3b2aa8ed76017be41be673dd1d29599c/node_modules/@ton/sandbox/dist/blockchain/Blockchain.js:498:45)
+      at Object.<anonymous> (tests/GroupVaultFactory.spec.ts:401:60)
+
+  ● GroupVaultFactory › Edge Cases and Error Handling › should handle invalid message type gracefully
+
+    value is out of range for 257 bits. Got 99999999999999999999999999999999999999999999999999999999999999999999999999999999
+
+      778 |         b_0.storeUint(4097, 32);
+      779 |         b_0.storeStringRefTail(src.groupName);
+    > 780 |         b_0.storeInt(src.groupHash, 257);
+          |             ^
+      781 |         b_0.storeAddress(src.adminAddress);
+      782 |     };
+      783 | }
+
+      at BitBuilder.writeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/BitBuilder.js:158:19)
+      at Builder.storeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:136:20)
+      at build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:780:13
+      at Builder.storeWritable (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:338:13)
+      at Builder.store (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:362:14)
+      at GroupVaultFactory.send (build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:7187:32)
+      at Proxy.<anonymous> (../node_modules/.pnpm/@ton+sandbox@0.39.0_@ton-community+func-js@0.11.0_@ton+core@0.62.0_@ton+crypto@3.3.0__@_3b2aa8ed76017be41be673dd1d29599c/node_modules/@ton/sandbox/dist/blockchain/Blockchain.js:498:45)
+      at Object.<anonymous> (tests/GroupVaultFactory.spec.ts:479:52)
+
+  ● GroupVaultFactory › Multiple Group Registration › should handle multiple group registrations
+
+    value is out of range for 257 bits. Got 12345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+      778 |         b_0.storeUint(4097, 32);
+      779 |         b_0.storeStringRefTail(src.groupName);
+    > 780 |         b_0.storeInt(src.groupHash, 257);
+          |             ^
+      781 |         b_0.storeAddress(src.adminAddress);
+      782 |     };
+      783 | }
+
+      at BitBuilder.writeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/BitBuilder.js:158:19)
+      at Builder.storeInt (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:136:20)
+      at build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:780:13
+      at Builder.storeWritable (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:338:13)
+      at Builder.store (../node_modules/.pnpm/@ton+core@0.62.0_@ton+crypto@3.3.0/node_modules/@ton/core/dist/boc/Builder.js:362:14)
+      at GroupVaultFactory.send (build/GroupVaultFactory/GroupVaultFactory_GroupVaultFactory.ts:7187:32)
+      at Proxy.<anonymous> (../node_modules/.pnpm/@ton+sandbox@0.39.0_@ton-community+func-js@0.11.0_@ton+core@0.62.0_@ton+crypto@3.3.0__@_3b2aa8ed76017be41be673dd1d29599c/node_modules/@ton/sandbox/dist/blockchain/Blockchain.js:498:45)
+      at Object.<anonymous> (tests/GroupVaultFactory.spec.ts:529:64)
+
+SKIP Reporter mode: gas
+----------|---------|----------|---------|---------|-------------------
+File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+----------|---------|----------|---------|---------|-------------------
+All files |       0 |        0 |       0 |       0 |                   
+----------|---------|----------|---------|---------|-------------------
+Test Suites: 1 failed, 1 total
+Tests:       9 failed, 15 passed, 24 total
+Snapshots:   0 total
+Time:        18.067 s
+Ran all test suites matching tests/GroupVaultFactory.spec.ts.
+Test suite "GroupVaultFactory" failed
