@@ -14,9 +14,9 @@ async function run() {
     console.log('🚀 Direct Deployment to Testnet\n');
 
     // Get mnemonic from env
-    const mnemonic = process.env.WALLET_MNEMONIC;
+    const mnemonic = process.env.MNEMONIC || process.env.WALLET_MNEMONIC;
     if (!mnemonic) {
-        throw new Error('WALLET_MNEMONIC not found in .env file');
+        throw new Error('MNEMONIC not found in .env file');
     }
 
     // Create client with direct endpoint
