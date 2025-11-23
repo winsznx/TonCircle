@@ -30,7 +30,7 @@ export class GroupVaultFactory implements Contract {
     constructor(
         readonly address: Address,
         readonly init?: { code: Cell; data: Cell },
-    ) {}
+    ) { }
 
     static createFromAddress(address: Address) {
         return new GroupVaultFactory(address);
@@ -73,7 +73,7 @@ export class GroupVaultFactory implements Contract {
                 .storeUint(0x1001, 32) // RegisterGroup opcode
                 .storeUint(0, 64) // query_id
                 .storeStringTail(opts.groupName)
-                .storeUint(opts.groupHash, 256)
+                .storeInt(opts.groupHash, 257) // groupHash as 257-bit Int
                 .storeAddress(opts.adminAddress)
                 .endCell(),
         });

@@ -1,5 +1,6 @@
 import { toNano, Address } from '@ton/core';
 import { GroupVault } from '../wrappers/GroupVault';
+import { GroupVaultFactory } from '../wrappers/GroupVaultFactory';
 import { compile, NetworkProvider } from '@ton/blueprint';
 
 export async function run(provider: NetworkProvider) {

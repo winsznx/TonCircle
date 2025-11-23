@@ -39,7 +39,7 @@ describe('GroupVaultFactory', () => {
     describe('Deployment and Initialization', () => {
         it('should deploy successfully with correct initial state', async () => {
             const factoryStatus = await groupVaultFactory.getGetFactoryStatus();
-            
+
             expect(factoryStatus.totalGroups).toBe(0n);
             expect(factoryStatus.isActive).toBe(true);
             // Note: maxGroupsPerAdmin is not in the FactoryStatusResponse, it's stored in contract state
@@ -54,7 +54,7 @@ describe('GroupVaultFactory', () => {
 
     describe('Group Registration', () => {
         const validGroupName = "Test Group";
-        const validGroupHash = BigInt('12345678901234567890123456789012345678901234567890123456789012345678901234567890');
+        const validGroupHash = BigInt('1234567890123456789012345678901234567890123456789012345678901234567890');
 
         it('should register a new group successfully', async () => {
             const registerResult = await groupVaultFactory.send(
@@ -153,7 +153,7 @@ describe('GroupVaultFactory', () => {
 
         it('should return excess funds to sender', async () => {
             const initialBalance = await admin.getBalance();
-            
+
             const registerResult = await groupVaultFactory.send(
                 admin.getSender(),
                 {
@@ -406,7 +406,7 @@ describe('GroupVaultFactory', () => {
                 {
                     $$type: 'RegisterGroup',
                     groupName: "Test Group",
-                    groupHash: BigInt('12345678901234567890123456789012345678901234567890123456789012345678901234567890'),
+                    groupHash: validGroupHash,
                     adminAddress: admin.address
                 }
             );
@@ -422,7 +422,7 @@ describe('GroupVaultFactory', () => {
     describe('Getter Functions', () => {
         it('should return correct factory status', async () => {
             const factoryStatus = await groupVaultFactory.getGetFactoryStatus();
-            
+
             expect(typeof factoryStatus.totalGroups).toBe('bigint');
             expect(typeof factoryStatus.isActive).toBe('boolean');
             expect(typeof factoryStatus.registrationFee).toBe('bigint');
@@ -449,7 +449,7 @@ describe('GroupVaultFactory', () => {
             expect(address1).not.toBeNull();
             expect(address2).not.toBeNull();
             expect(address3).not.toBeNull();
-            
+
             if (address1 && address2 && address3) {
                 expect(address1.toString()).not.toBe(address2.toString());
                 expect(address2.toString()).not.toBe(address3.toString());
@@ -484,7 +484,7 @@ describe('GroupVaultFactory', () => {
                 {
                     $$type: 'RegisterGroup', // Using valid message type for testing
                     groupName: "Invalid Test",
-                    groupHash: BigInt('99999999999999999999999999999999999999999999999999999999999999999999999999999999'),
+                    groupHash: BigInt('9999999999999999999999999999999999999999999999999999999999999999999999'),
                     adminAddress: user.address
                 }
             );
@@ -524,7 +524,7 @@ describe('GroupVaultFactory', () => {
     describe('Multiple Group Registration', () => {
         it('should handle multiple group registrations', async () => {
             const groupCount = 3;
-            
+
             for (let i = 0; i < groupCount; i++) {
                 const registerResult = await groupVaultFactory.send(
                     admin.getSender(),
@@ -534,7 +534,7 @@ describe('GroupVaultFactory', () => {
                     {
                         $$type: 'RegisterGroup',
                         groupName: `Test Group ${i}`,
-                        groupHash: BigInt(`1234567890123456789012345678901234567890123456789012345678901234567890123456789${i}`),
+                        groupHash: BigInt(`123456789012345678901234567890123456789012345678901234567890123456789${i}`),
                         adminAddress: admin.address
                     }
                 );
@@ -552,7 +552,7 @@ describe('GroupVaultFactory', () => {
 
         it('should generate unique addresses for each group', async () => {
             const addresses: string[] = [];
-            
+
             for (let i = 0; i < 5; i++) {
                 const address = await groupVaultFactory.getGetGroupByIndex(BigInt(i));
                 expect(address).not.toBeNull();

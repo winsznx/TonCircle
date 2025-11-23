@@ -2,5 +2,5 @@ import { CompilerConfig } from '@ton/blueprint';
 
 export const compile: CompilerConfig = {
     lang: 'tact',
-    target: 'contracts/contracts/core/GroupVault.tact',
+    target: 'contracts/contracts/core/GroupVaultFactory.tact',
 };
