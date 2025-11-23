@@ -1,11 +1,12 @@
 # TON Circle
 
-**Formerly TON Split** - A decentralized Telegram Mini-App for group expense splitting, shared savings, and collaborative financial management on the TON Blockchain.
+**TON Circle** - A complete Telegram ecosystem for group expense splitting, savings goals, multi-signature escrows, and collaborative financial management on the TON Blockchain.
 
 [![TON](https://img.shields.io/badge/TON-Blockchain-0088cc)](https://ton.org)
 [![Tact](https://img.shields.io/badge/Smart%20Contracts-Tact-blue)](https://tact-lang.org)
 [![React](https://img.shields.io/badge/Frontend-React-61dafb)](https://reactjs.org)
-[![Testnet](https://img.shields.io/badge/Status-Testnet-yellow)](https://testnet.tonscan.org)
+[![Testnet](https://img.shields.io/badge/Status-Live%20on%20Testnet-green)](https://testnet.tonscan.org)
+[![Bot](https://img.shields.io/badge/Telegram-Bot%20Integrated-blue)](https://telegram.org)
 
 ## 📋 Table of Contents
 
@@ -26,61 +27,112 @@
 
 ## 🎯 Overview
 
-TON Circle is a Web3 application that enables groups to:
-- **Split expenses** transparently on the blockchain
-- **Track debts** automatically with smart contracts
-- **Create shared savings goals** with milestone tracking
-- **Manage group finances** with on-chain accountability
-- **Settle payments** directly through TON wallets
+TON Circle is a complete Web3 financial management ecosystem that enables groups to:
+- **Split expenses** transparently with automatic debt calculation
+- **Create savings goals** with progress tracking and contributions
+- **Multi-signature escrows** for secure collaborative payments
+- **Manage via Telegram Bot** with 13 commands reading live blockchain data
+- **Track member reputation** with on-chain profiles
+- **Settle debts** directly through TON wallets
 
-Built for Telegram as a Mini-App, TON Circle leverages the TON blockchain for secure, transparent, and decentralized financial management among groups.
+Built as both a Telegram Mini-App and Bot, TON Circle provides dual interfaces for managing group finances with full blockchain transparency and automation.
 
 ## ✨ Features
 
-### Core Features (Live on Testnet)
-- ✅ **Group Vault Management**: Create and manage expense groups on-chain
-- ✅ **Smart Contract Integration**: Real blockchain interactions
-- ✅ **Wallet Connection**: TON Connect integration for secure authentication
-- ✅ **Dark Mode**: Full theme support with system preference detection
-- ✅ **Real-time Stats**: Live data from smart contracts
+### 🚀 Live on Testnet
 
-### In Development
-- 🚧 **Expense Splitting**: Multi-party expense distribution
-- 🚧 **Debt Settlement**: Automated debt tracking and settlement
-- 🚧 **Savings Goals**: Collaborative goal creation and contributions
-- 🚧 **Member Profiles**: Reputation system and contribution history
-- 🚧 **Payment Reminders**: Automated notifications via Telegram bot
+**Mini-App (React + TON Connect):**
+- ✅ **Group Creation**: Deploy smart contracts per group (Factory pattern)
+- ✅ **Expense Splitting**: Multi-party expense distribution with automatic debt calculation
+- ✅ **Debt Settlement**: Real-time debt tracking and one-click payment
+- ✅ **Savings Goals**: Collaborative goals with progress tracking and contributions
+- ✅ **Multi-Sig Escrow**: Create, approve, and release escrowed funds
+- ✅ **Member Profiles**: On-chain reputation and contribution stats
+- ✅ **Dark Mode**: Full theme support with system preference detection
+- ✅ **TON Connect**: Secure wallet authentication
+
+**Telegram Bot (13 Commands):**
+- ✅ **Group Linking**: `/linkgroup` - Connect Telegram groups to smart contracts
+- ✅ **Live Status**: `/status` - Real-time group stats from blockchain
+- ✅ **Expense Management**: `/addexpense`, `/expenses` - Add and view expenses
+- ✅ **Goals Tracking**: `/addgoal`, `/goals` - Create and monitor savings goals
+- ✅ **Member Info**: `/members`, `/balance`, `/mydebts` - Check balances and debts
+- ✅ **Quick Actions**: All commands open mini-app with pre-filled data
+- ✅ **Real Data**: Reads directly from deployed contracts
+
+**Bot-MiniApp Bridge:**
+- ✅ **Database Schema**: 9-table PostgreSQL schema for synchronization
+- ✅ **Deep Linking**: Share direct links to groups, expenses, and goals
+- ✅ **Notification System**: Queue-based automated Telegram alerts (code ready)
+- ✅ **Command Logging**: Full analytics and command tracking
+
+### 🔮 Coming Soon (Code Complete)
+
+- 🎨 **Jetton Support**: Multi-currency (TON, USDT, USDC) for expenses and goals
+- 🏆 **NFT Achievement Badges**: 10 badge types, 5 rarity levels, auto-mint on milestones
+- 👤 **TON Username Resolution**: Display @username.ton instead of addresses
+- ⭐ **Telegram Stars Premium**: Unlock pro features (unlimited members, exclusive badges)
+- 🔔 **Auto-Notifications**: Real-time Telegram alerts for all group activities
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Telegram Mini-App                        │
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │    React    │  │  TON Connect │  │   Services   │      │
-│  │  Frontend   │◄─┤   Wallet     │◄─┤  Integration │      │
-│  └─────────────┘  └──────────────┘  └──────────────┘      │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-              ┌────────────────────────┐
-              │    TON Blockchain      │
-              │                        │
-              │  ┌──────────────────┐  │
-              │  │ GroupVaultFactory│  │
-              │  └────────┬─────────┘  │
-              │           │            │
-              │  ┌────────▼─────────┐  │
-              │  │   GroupVault     │  │
-              │  │  (per group)     │  │
-              │  └────────┬─────────┘  │
-              │           │            │
-              │  ┌────────▼─────────┐  │
-              │  │     Member       │  │
-              │  │ (per member)     │  │
-              │  └──────────────────┘  │
-              └────────────────────────┘
+┌──────────────────────┐         ┌─────────────────────────────┐
+│   Telegram User      │◄───────►│    Telegram Mini-App        │
+│                      │         │  ┌─────────────────────────┐│
+│  • Chat with bot     │         │  │  React + TON Connect    ││
+│  • Use commands      │         │  │  • Create groups        ││
+│  • Get notifications │         │  │  • Split expenses       ││
+└──────────┬───────────┘         │  │  • Track goals          ││
+           │                     │  │  • Manage escrows       ││
+           │                     │  └─────────┬───────────────┘│
+           ▼                     └────────────┼─────────────────┘
+┌──────────────────────┐                     │
+│   Telegram Bot       │                     │
+│  ┌────────────────┐  │                     │
+│  │  13 Commands   │  │                     │
+│  │  • /linkgroup  │  │◄────────────────────┤
+│  │  • /status     │  │  Database Bridge    │
+│  │  • /expenses   │  │  (PostgreSQL)       │
+│  │  • /goals      │  │                     │
+│  └────────┬───────┘  │                     │
+└───────────┼──────────┘                     │
+            │                                │
+            └────────────────┬───────────────┘
+                             │
+                             ▼
+              ┌──────────────────────────┐
+              │    TON Blockchain        │
+              │  ┌────────────────────┐  │
+              │  │ GroupVaultFactory  │  │
+              │  │  ✅ Deployed       │  │
+              │  └─────────┬──────────┘  │
+              │            │             │
+              │  ┌─────────▼──────────┐  │
+              │  │   GroupVault       │  │
+              │  │  • Expenses        │  │
+              │  │  • Goals           │  │
+              │  │  • Escrows         │  │
+              │  │  • Debts           │  │
+              │  └─────────┬──────────┘  │
+              │            │             │
+              │  ┌─────────▼──────────┐  │
+              │  │     Member         │  │
+              │  │  • Profile         │  │
+              │  │  • Reputation      │  │
+              │  │  • Contributions   │  │
+              │  └────────────────────┘  │
+              └──────────────────────────┘
 ```
+
+### Dual Interface Workflow
+
+1. **User creates expense in mini-app** → Transaction sent to GroupVault
+2. **Contract processes** → Updates on-chain state
+3. **Bot polls contracts** → Detects new expense
+4. **Notification sent** → Telegram group receives update
+5. **User checks in bot** → `/expenses` shows live data from blockchain
+6. **Seamless sync** → Bot and mini-app always show same data
 
 ## 📜 Smart Contracts
 
@@ -88,13 +140,14 @@ Built for Telegram as a Mini-App, TON Circle leverages the TON blockchain for se
 
 **GroupVaultFactory**
 ```
-Address: EQDl2F_jqOyubk6rNsGb_-bhUzipHlkZg6A2MtSshylSihK2
+Address: EQDU7ANbVtUxcw79x7dFfltROR2hNYGefwBIzdPEm33wKbs9
 Network: Testnet
 Status: ✅ Active
 Language: Tact v1.6.13
+Balance: ~7.5 TON
 ```
 
-[View on Explorer](https://testnet.tonscan.org/address/EQDl2F_jqOyubk6rNsGb_-bhUzipHlkZg6A2MtSshylSihK2)
+[View on Explorer](https://testnet.tonscan.org/address/EQDU7ANbVtUxcw79x7dFfltROR2hNYGefwBIzdPEm33wKbs9)
 
 ### Contract Hierarchy
 
@@ -202,8 +255,21 @@ TonSplit/
 │   ├── VERIFICATION_REPORT.md
 │   └── DEPLOYMENT_GUIDE.md
 │
-├── telegram-bot/             # Telegram Bot (Future)
-│   └── ...
+├── telegram-bot/             # Telegram Bot
+│   ├── src/
+│   │   ├── handlers/         # Command handlers
+│   │   │   └── groupCommands.ts  # ✅ 13 commands
+│   │   ├── services/         # Bot services
+│   │   │   ├── contractService.ts    # ✅ Blockchain reading
+│   │   │   ├── databaseService.ts    # ✅ PostgreSQL bridge
+│   │   │   └── notificationService.ts # ✅ Alert system
+│   │   ├── database/
+│   │   │   └── schema.sql    # ✅ 9-table schema
+│   │   └── index.ts          # ✅ Bot entry point
+│   ├── .env                  # ✅ Bot configuration
+│   ├── BOT_SETUP.md          # ✅ Setup guide
+│   ├── test-contract.ts      # ✅ Contract test script
+│   └── package.json
 │
 ├── common/                   # Shared utilities
 └── docs/                     # Documentation
@@ -258,7 +324,7 @@ VITE_TON_MANIFEST_URL=http://localhost:3001/tonconnect-manifest.json
 VITE_TON_NETWORK=testnet
 
 # Deployed Contract Addresses
-VITE_FACTORY_ADDRESS=EQDl2F_jqOyubk6rNsGb_-bhUzipHlkZg6A2MtSshylSihK2
+VITE_FACTORY_ADDRESS=EQDU7ANbVtUxcw79x7dFfltROR2hNYGefwBIzdPEm33wKbs9
 
 # Telegram Configuration
 VITE_BOT_USERNAME=@your_bot_username
@@ -534,14 +600,6 @@ const badges = await member.getReputationBadges(memberAddress);
 - **Icons**: lucide-react only (no emojis in code)
 - **Colors**: Follow defined palette in `instructions.md`
 
-### Git Configuration
-
-Commits should use:
-```bash
-git config user.name "winsznx"
-git config user.email "timjosh507@gmail.com"
-```
-
 ### Testing Requirements
 
 - All new features must include tests
@@ -559,27 +617,143 @@ git config user.email "timjosh507@gmail.com"
 
 ## 🗺️ Roadmap
 
-### Phase 1: MVP (Current)
-- [x] Smart contract architecture
+### ✅ Phase 1: Core Platform (Complete)
+- [x] Smart contract architecture (Factory + GroupVault + Member)
 - [x] Factory pattern implementation
-- [x] Basic group management
-- [x] Wallet connection
-- [x] Testnet deployment
-- [ ] Expense splitting
-- [ ] Debt settlement
+- [x] Group creation and management
+- [x] Expense splitting with automatic debt calculation
+- [x] Savings goals with progress tracking
+- [x] Multi-signature escrow functionality
+- [x] Member profiles and reputation tracking
+- [x] TON Connect wallet integration
+- [x] Testnet deployment (Factory deployed)
+- [x] React Mini-App with full UI
+- [x] Telegram Bot with 13 commands
+- [x] Bot-MiniApp database bridge (PostgreSQL)
+- [x] Deep linking system
+- [x] Dark mode theme support
 
-### Phase 2: Enhanced Features
-- [ ] Savings goals with milestones
-- [ ] Member reputation system
-- [ ] Payment reminders
-- [ ] Multi-signature escrow
-- [ ] NFT badges
+### 🚧 Phase 2: Advanced Features (In Progress)
 
-### Phase 3: Mainnet
-- [ ] Security audit
-- [ ] Mainnet deployment
-- [ ] Production bot
-- [ ] Marketing launch
+**Multi-Currency Support (40% Complete)**
+- [x] JettonTypes.tact - Currency info structures
+- [x] JettonExpenseInfo and JettonGoalInfo messages
+- [ ] Integrate Jetton wallet interactions in GroupVault
+- [ ] Support USDT, USDC, and custom Jettons
+- [ ] Multi-currency expense splitting UI
+- [ ] Exchange rate oracle integration
+- **ETA:** 2-3 weeks
+
+**NFT Achievement Badges (30% Complete)**
+- [x] AchievementBadge.tact contract (TEP-62 compliant)
+- [x] 10 badge types (First Contribution, Goal Achiever, Whale, etc.)
+- [x] 5 rarity levels (Common, Rare, Epic, Legendary, Mythic)
+- [x] Auto-mint capability from GroupVault
+- [ ] Deploy NFT collection contract
+- [ ] Integrate minting triggers in GroupVault
+- [ ] NFT gallery UI in Profile page
+- [ ] Badge showcase and sharing
+- **ETA:** 2 weeks
+
+**TON Username Resolution (0% Complete)**
+- [ ] Integrate TON DNS SDK
+- [ ] Resolve @username.ton to addresses
+- [ ] Display usernames in member lists
+- [ ] Username input support in forms
+- [ ] Cache resolution results
+- **ETA:** 1 week
+
+**Telegram Stars Premium Features (20% Complete)**
+- [x] Premium feature flags in database
+- [x] Bot command for Stars payment
+- [ ] Telegram Stars payment integration
+- [ ] Premium tiers (Basic, Pro, Enterprise)
+- [ ] Unlock features: Unlimited members, Custom badges, Priority support
+- [ ] Premium status UI indicators
+- **ETA:** 2 weeks
+
+**Auto-Notifications (90% Complete - Code Ready)**
+- [x] Notification queue system in database
+- [x] NotificationService.ts with polling
+- [x] Event detection logic
+- [ ] Deploy notification worker
+- [ ] Add contract event polling
+- [ ] Test real-time Telegram alerts
+- **ETA:** 3 days
+
+### 🔮 Phase 3: Enterprise & Scaling
+
+**Analytics Dashboard**
+- [ ] Group spending analytics
+- [ ] Member contribution graphs
+- [ ] Goal completion rates
+- [ ] Expense category breakdown
+- [ ] Export reports (CSV, PDF)
+- **ETA:** 3 weeks
+
+**Mobile Apps**
+- [ ] React Native iOS app
+- [ ] React Native Android app
+- [ ] Push notifications
+- [ ] Offline mode support
+- **ETA:** 2 months
+
+**Advanced Escrow**
+- [ ] Time-locked escrows
+- [ ] Conditional release (oracle-based)
+- [ ] Dispute resolution system
+- [ ] Escrow templates
+- **ETA:** 3 weeks
+
+**Integrations**
+- [ ] Webhook API for external apps
+- [ ] Zapier integration
+- [ ] Discord bot companion
+- [ ] Slack bot companion
+- **ETA:** 1 month
+
+### 🚀 Phase 4: Mainnet Launch
+
+**Security & Audit**
+- [ ] Professional smart contract audit (CertiK/Trail of Bits)
+- [ ] Bug bounty program
+- [ ] Penetration testing
+- [ ] Security documentation
+- **ETA:** 1 month
+
+**Mainnet Deployment**
+- [ ] Deploy contracts to TON mainnet
+- [ ] Production database setup (AWS RDS / Supabase)
+- [ ] Bot hosting (Railway / Heroku)
+- [ ] Frontend hosting (Vercel / Netlify)
+- [ ] CDN setup for global performance
+- **ETA:** 1 week
+
+**Marketing & Growth**
+- [ ] Official website launch
+- [ ] Documentation portal (docs.toncircle.app)
+- [ ] Tutorial videos
+- [ ] Partnership with TON projects
+- [ ] Community building (Discord, Telegram)
+- [ ] Ambassador program
+- **ETA:** Ongoing
+
+### 📅 Timeline Summary
+
+| Phase | Status | Completion | ETA |
+|-------|--------|------------|-----|
+| **Phase 1: Core Platform** | ✅ Complete | 100% | Done |
+| **Phase 2: Advanced Features** | 🚧 In Progress | 40% | 6-8 weeks |
+| **Phase 3: Enterprise** | 📋 Planned | 0% | 3-4 months |
+| **Phase 4: Mainnet Launch** | 📋 Planned | 0% | 5-6 months |
+
+### 🎯 Current Focus (Next 2 Weeks)
+
+1. **Complete Auto-Notifications** - Deploy notification worker and test alerts
+2. **Deploy NFT Badges** - Deploy collection and integrate minting
+3. **Jetton Integration** - Add multi-currency support to GroupVault
+4. **Database Setup Guide** - Help users set up PostgreSQL for bot
+5. **Testing** - End-to-end testing of bot + mini-app integration
 
 ## 📄 License
 

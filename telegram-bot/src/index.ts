@@ -45,7 +45,7 @@ bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
     chatId,
     `Hello ${firstName}! 👋\n\n` +
     `Welcome to *TON Circle* - Manage group expenses, savings goals, and escrows on TON Blockchain.\n\n` +
-    `🔹 Split bills fairly\n` +
+    `🔹 Share expenses fairly\n` +
     `🔹 Set group savings goals\n` +
     `🔹 Multi-sig escrows\n` +
     `🔹 NFT achievement badges\n` +
@@ -99,7 +99,7 @@ bot.onText(/\/help/, (msg) => {
       `2. Use /creategroup <name> in the group\n` +
       `3. Open the mini-app to complete setup\n\n` +
       `*Features:*\n` +
-      `🔹 Split expenses with smart contracts\n` +
+      `🔹 Track group expenses with smart contracts\n` +
       `🔹 Create group savings goals\n` +
       `🔹 Multi-signature escrows\n` +
       `🔹 NFT achievement badges\n` +
@@ -144,7 +144,7 @@ bot.on('callback_query', async (query) => {
         chatId,
         `*About TON Circle* ℹ️\n\n` +
         `TON Circle is a comprehensive Telegram Mini-App built on TON Blockchain:\n\n` +
-        `✅ Group expense splitting\n` +
+        `✅ Group expense tracking\n` +
         `✅ Collaborative savings goals\n` +
         `✅ Multi-signature escrows\n` +
         `✅ NFT achievement badges\n` +
