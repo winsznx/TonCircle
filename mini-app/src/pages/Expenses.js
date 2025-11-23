@@ -11,6 +11,9 @@ export function Expenses() {
   const address = useTonAddress();
   const { currentGroup } = useGroup();
   const [showCreateExpense, setShowCreateExpense] = useState(false);
+
+
+
   const [loading, setLoading] = useState(true);
   const [expenses, setExpenses] = useState([]);
   const [debts, setDebts] = useState([]);
@@ -18,10 +21,17 @@ export function Expenses() {
   const [expenseData, setExpenseData] = useState({
     description: '',
     amount: '',
-    paidBy: address || '',
+    paidBy: address || '', // initialize with wallet address if available
     splitType: 'equal',
     participants: []
   });
+
+  // Keep paidBy in sync with wallet address changes
+  useEffect(() => {
+    if (address) {
+      setExpenseData(prev => ({ ...prev, paidBy: address }));
+    }
+  }, [address]);
 
   // Load expenses from contract
   useEffect(() => {
@@ -165,26 +175,30 @@ export function Expenses() {
 
       const groupAddress = currentGroup.address;
 
-      // Build message body for expense recording
-      const body = beginCell()
-        .storeUint(0x2007, 32) // GROUP_RECORD_EXPENSE opcode
-        .storeUint(0, 64) // query_id
-        .storeCoins(toNano(expenseData.amount))
-        .storeStringTail(expenseData.description)
-        .endCell();
+      // Prepare participants
+      // For demo, if no participants selected, use self
+      const participants = expenseData.participants.length > 0 ? expenseData.participants : [address];
 
-      const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 60 * 5,
-        messages: [
-          {
-            address: groupAddress,
-            amount: toNano(GAS_AMOUNTS.RECORD_EXPENSE).toString(),
-            payload: body.toBoc().toString('base64'),
-          },
-        ],
-      };
+      // Validate paidBy address
+      if (!expenseData.paidBy) {
+        alert('Payer address is missing');
+        return;
+      }
+      try {
+        Address.parse(expenseData.paidBy);
+      } catch (e) {
+        alert('Invalid payer address: ' + expenseData.paidBy);
+        return;
+      }
 
-      await tonConnectUI.sendTransaction(transaction);
+      await groupVault.createExpense({
+        groupAddress: currentGroup.address,
+        description: expenseData.description,
+        amount: expenseData.amount,
+        paidBy: expenseData.paidBy,
+        participants: participants,
+        sendTransaction: tonConnectUI.sendTransaction.bind(tonConnectUI)
+      });
 
       setShowCreateExpense(false);
       setExpenseData({
@@ -192,14 +206,15 @@ export function Expenses() {
         amount: '',
         paidBy: address,
         splitType: 'equal',
-        participants: []
+        participants: [],
+        currency: 'TON'
       });
 
       // Reload expenses
       setTimeout(() => window.location.reload(), 2000);
     } catch (error) {
       console.error('Error creating expense:', error);
-      alert('Failed to create expense. Please try again.');
+      alert(`Failed to create expense: ${error.message || error}`);
     }
   };
 
@@ -307,7 +322,7 @@ export function Expenses() {
                 <input
                   type="text"
                   value={expenseData.description}
-                  onChange={(e) => setExpenseData({...expenseData, description: e.target.value})}
+                  onChange={(e) => setExpenseData({ ...expenseData, description: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-800 dark:focus:ring-blue-600"
                   placeholder="e.g., Dinner at Restaurant"
                   required
@@ -322,7 +337,7 @@ export function Expenses() {
                   step="0.01"
                   min="0.01"
                   value={expenseData.amount}
-                  onChange={(e) => setExpenseData({...expenseData, amount: e.target.value})}
+                  onChange={(e) => setExpenseData({ ...expenseData, amount: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-800 dark:focus:ring-blue-600"
                   placeholder="0.00"
                   required
@@ -330,11 +345,25 @@ export function Expenses() {
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Currency
+                </label>
+                <select
+                  value={expenseData.currency}
+                  onChange={(e) => setExpenseData({ ...expenseData, currency: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-800 dark:focus:ring-blue-600"
+                >
+                  <option value="TON">TON</option>
+                  <option value="USDT">USDT (Tether)</option>
+                  <option value="USDC">USDC</option>
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Split Type
                 </label>
                 <select
                   value={expenseData.splitType}
-                  onChange={(e) => setExpenseData({...expenseData, splitType: e.target.value})}
+                  onChange={(e) => setExpenseData({ ...expenseData, splitType: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-800 dark:focus:ring-blue-600"
                 >
                   <option value="equal">Split Equally</option>
@@ -399,11 +428,10 @@ export function Expenses() {
                 </div>
               </div>
               <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-neutral-800">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${
-                  expense.status === 'settled'
-                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
-                    : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400'
-                }`}>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${expense.status === 'settled'
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
+                  : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400'
+                  }`}>
                   {expense.status === 'settled' ? (
                     <><CheckCircle2 className="w-3 h-3" /> <span>Settled</span></>
                   ) : (

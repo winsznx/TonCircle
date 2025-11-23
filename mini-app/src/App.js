@@ -14,7 +14,7 @@ import { Profile } from './pages/Profile';
 
 function App() {
   return (
-    <TonConnectUIProvider manifestUrl={tonConnectOptions.manifestUrl}>
+    <TonConnectUIProvider manifestUrl="https://scarlet-secure-wren-857.mypinata.cloud/ipfs/bafkreidqnkguqjo3ns4gcfkcihcpffxyepryvjgtivdzzainontnuu72lq">
       <Router>
         <ThemeProvider>
           <GroupProvider>

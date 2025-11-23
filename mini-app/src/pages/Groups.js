@@ -5,76 +5,33 @@ import { Users, Plus, Settings, AlertCircle, Loader2, CheckCircle, XCircle, User
 import { groupVaultFactory, groupVault } from '../services/contracts';
 import { getExplorerUrl } from '../config/contracts';
 import { useGroup } from '../contexts/GroupContext';
+import { Address } from '@ton/core';
 
 export function Groups() {
   const [tonConnectUI] = useTonConnectUI();
   const address = useTonAddress();
   const { user } = useTelegram();
-  const { currentGroup, groups: contextGroups, selectGroup, refreshGroups } = useGroup();
+  const { currentGroup, groups: contextGroups, loading: contextLoading, error: contextError, selectGroup, refreshGroups } = useGroup();
 
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showJoinGroup, setShowJoinGroup] = useState(false);
   const [selectedGroupForJoin, setSelectedGroupForJoin] = useState(null);
   const [groupName, setGroupName] = useState('');
+  // Use groups from context instead of loading separately
   const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
 
+  // Sync with context groups
   useEffect(() => {
-    loadGroups();
-  }, [address]);
+    setGroups(contextGroups || []);
+    setLoading(contextLoading);
+    setError(contextError);
+  }, [contextGroups, contextLoading, contextError]);
 
-  // Sync local groups with context groups
-  useEffect(() => {
-    if (contextGroups && contextGroups.length > 0) {
-      // Context groups are already loaded, use them
-      setGroups(contextGroups);
-      setLoading(false);
-    }
-  }, [contextGroups]);
-
-  async function loadGroups() {
-    if (!address) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const totalGroups = await groupVaultFactory.getTotalGroups();
-
-      const loadedGroups = [];
-      for (let i = 0; i < totalGroups; i++) {
-        try {
-          const groupAddress = await groupVaultFactory.getGroupByIndex(BigInt(i));
-          if (groupAddress) {
-            const groupInfo = await groupVault.getGroupInfo(groupAddress);
-            if (groupInfo) {
-              loadedGroups.push({
-                address: groupAddress,
-                name: groupInfo.groupName,
-                members: Number(groupInfo.memberCount),
-                isActive: groupInfo.isActive,
-                adminAddress: groupInfo.adminAddress
-              });
-            }
-          }
-        } catch (err) {
-          console.error(`Error loading group ${i}:`, err);
-        }
-      }
-
-      setGroups(loadedGroups);
-    } catch (err) {
-      console.error('Error loading groups:', err);
-      setError('Failed to load groups');
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function handleCreateGroup(e) {
     e.preventDefault();
@@ -84,14 +41,15 @@ export function Groups() {
       setCreating(true);
       setError(null);
 
-      // Generate unique hash for the group
-      const groupHash = BigInt(Date.now() + Math.random() * 1000000).toString();
+      // Generate unique hash for the group (must be integer for BigInt)
+      const groupHash = BigInt(Date.now() + Math.floor(Math.random() * 1000000));
 
       const result = await groupVaultFactory.registerGroup({
         groupName: groupName.trim(),
         groupHash,
         adminAddress: address,
-        sendTransaction: tonConnectUI.sendTransaction
+        sendTransaction: (tx) => tonConnectUI.sendTransaction(tx),
+
       });
 
       if (result.success) {
@@ -100,11 +58,12 @@ export function Groups() {
         setShowCreateGroup(false);
         setGroupName('');
 
-        // Reload groups and refresh context
+        // Reload groups and refresh context after 10 seconds to allow blockchain confirmation
         setTimeout(async () => {
-          await loadGroups();
+          console.log('Reloading groups after creation...');
           await refreshGroups();
-        }, 3000);
+          await refreshGroups();
+        }, 10000);
       } else {
         setError(result.error || 'Failed to create group');
       }
@@ -128,7 +87,8 @@ export function Groups() {
       const result = await groupVault.addMember({
         groupAddress: selectedGroupForJoin.address,
         memberAddress: address,
-        sendTransaction: tonConnectUI.sendTransaction
+        sendTransaction: (tx) => tonConnectUI.sendTransaction(tx)
+
       });
 
       if (result.success) {
@@ -139,7 +99,7 @@ export function Groups() {
 
         // Reload groups
         setTimeout(async () => {
-          await loadGroups();
+          await refreshGroups();
           await refreshGroups();
         }, 3000);
       } else {
@@ -354,11 +314,10 @@ export function Groups() {
                         {group.address.slice(0, 8)}...{group.address.slice(-6)}
                       </p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      group.isActive
-                        ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
-                        : 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-400'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${group.isActive
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
+                      : 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-400'
+                      }`}>
                       {group.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </div>
@@ -390,11 +349,10 @@ export function Groups() {
                       <button
                         onClick={() => handleSelectGroup(group)}
                         disabled={currentGroup?.address === group.address}
-                        className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${
-                          currentGroup?.address === group.address
-                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 cursor-not-allowed'
-                            : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-neutral-700'
-                        }`}
+                        className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${currentGroup?.address === group.address
+                          ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 cursor-not-allowed'
+                          : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-neutral-700'
+                          }`}
                       >
                         {currentGroup?.address === group.address ? 'Selected' : 'Select'}
                       </button>
