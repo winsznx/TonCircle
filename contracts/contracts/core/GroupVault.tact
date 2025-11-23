@@ -58,11 +58,15 @@ contract GroupVault with GroupUtils, MathUtils, EventUtils, CryptoUtils {
     
     /// Map of debts (debtId -> DebtInfo)
     debts: map<Int, DebtInfo> = emptyMap();
-    
+
+    /// Map of escrows (escrowId -> EscrowInfo)
+    escrows: map<Int, EscrowInfo> = emptyMap();
+
     /// Next available IDs
     nextGoalId: Int = 1;
     nextExpenseId: Int = 1;
     nextDebtId: Int = 1;
+    nextEscrowId: Int = 1;
     
 
     /// Contract initialization - only accepts index and factory address
@@ -437,7 +441,169 @@ contract GroupVault with GroupUtils, MathUtils, EventUtils, CryptoUtils {
         
         self.emitFinancialEvent(EVENT_DEBT_RECORDED, debt.debtor, debt.creditor, msg.amount, myAddress(), eventData);
     }
-    
+
+    /// Handles creating a new escrow
+    receive(msg: CreateEscrow) {
+        // Only admin can create escrows
+        require(sender() == self.admin, "Only admin can create escrows");
+
+        // Validate escrow data
+        require(msg.amount > 0, "Escrow amount must be positive");
+        require(msg.deadline > now(), "Deadline must be in the future");
+        require(msg.requiredSignatures > 0, "Required signatures must be positive");
+        require(msg.requiredSignatures <= self.memberCount, "Required signatures exceeds member count");
+
+        // Check if sufficient value was sent
+        require(context().value >= msg.amount, "Insufficient value sent");
+
+        // Create escrow
+        let escrow: EscrowInfo = EscrowInfo {
+            escrowId: self.nextEscrowId,
+            description: msg.description,
+            amount: msg.amount,
+            recipientAddress: msg.recipientAddress,
+            creatorAddress: sender(),
+            requiredSignatures: msg.requiredSignatures,
+            currentSignatures: 0,
+            approvals: emptyMap(),
+            deadline: msg.deadline,
+            createdAt: now(),
+            status: ESCROW_STATUS_PENDING
+        };
+
+        // Store escrow
+        self.escrows.set(self.nextEscrowId, escrow);
+        self.nextEscrowId = self.safeAdd(self.nextEscrowId, 1);
+
+        // Emit event
+        let eventData: Cell = beginCell()
+            .storeUint(escrow.escrowId, 64)
+            .storeSlice(escrow.description.asSlice())
+            .storeCoins(escrow.amount)
+            .storeAddress(escrow.recipientAddress)
+            .storeUint(escrow.requiredSignatures, 32)
+            .endCell();
+
+        self.emitGroupEvent(EVENT_GOAL_CREATED, myAddress(), eventData);
+    }
+
+    /// Handles approving an escrow
+    receive(msg: ApproveEscrow) {
+        // Check if escrow exists
+        require(self.escrows.exists(msg.escrowId), "Escrow does not exist");
+
+        let escrow: EscrowInfo = self.escrows.get(msg.escrowId)!!;
+
+        // Check if escrow is still pending
+        require(escrow.status == ESCROW_STATUS_PENDING, "Escrow is not pending");
+        require(escrow.deadline > now(), "Escrow deadline has passed");
+
+        // Check if sender is a member
+        require(self.members.exists(sender()), "Only members can approve");
+
+        // Check if already approved
+        require(!escrow.approvals.exists(sender()), "Already approved by this address");
+
+        // Add approval
+        escrow.approvals.set(sender(), true);
+        escrow.currentSignatures = self.safeAdd(escrow.currentSignatures, 1);
+
+        // Store updated escrow
+        self.escrows.set(msg.escrowId, escrow);
+
+        // Emit event
+        let eventData: Cell = beginCell()
+            .storeUint(msg.escrowId, 64)
+            .storeAddress(sender())
+            .storeUint(escrow.currentSignatures, 32)
+            .storeUint(escrow.requiredSignatures, 32)
+            .endCell();
+
+        self.emitGroupEvent(EVENT_CONTRIBUTION_MADE, myAddress(), eventData);
+    }
+
+    /// Handles releasing escrow funds
+    receive(msg: ReleaseEscrow) {
+        // Check if escrow exists
+        require(self.escrows.exists(msg.escrowId), "Escrow does not exist");
+
+        let escrow: EscrowInfo = self.escrows.get(msg.escrowId)!!;
+
+        // Check if escrow is still pending
+        require(escrow.status == ESCROW_STATUS_PENDING, "Escrow is not pending");
+
+        // Check if enough signatures
+        require(escrow.currentSignatures >= escrow.requiredSignatures, "Insufficient signatures");
+
+        // Only admin can release
+        require(sender() == self.admin, "Only admin can release escrow");
+
+        // Update status
+        escrow.status = ESCROW_STATUS_RELEASED;
+        self.escrows.set(msg.escrowId, escrow);
+
+        // Transfer funds to recipient
+        send(SendParameters {
+            to: escrow.recipientAddress,
+            value: escrow.amount,
+            mode: SendIgnoreErrors,
+            body: beginCell()
+                .storeSlice("Escrow released".asSlice())
+                .endCell()
+        });
+
+        // Emit event
+        let eventData: Cell = beginCell()
+            .storeUint(msg.escrowId, 64)
+            .storeCoins(escrow.amount)
+            .storeAddress(escrow.recipientAddress)
+            .storeUint(now(), 64)
+            .endCell();
+
+        self.emitGroupEvent(EVENT_GOAL_COMPLETED, myAddress(), eventData);
+    }
+
+    /// Handles refunding an escrow
+    receive(msg: RefundEscrow) {
+        // Check if escrow exists
+        require(self.escrows.exists(msg.escrowId), "Escrow does not exist");
+
+        let escrow: EscrowInfo = self.escrows.get(msg.escrowId)!!;
+
+        // Check if escrow is still pending
+        require(escrow.status == ESCROW_STATUS_PENDING, "Escrow is not pending");
+
+        // Either deadline passed OR creator/admin requests refund
+        let canRefund: Bool = (escrow.deadline < now()) ||
+                             (sender() == escrow.creatorAddress) ||
+                             (sender() == self.admin);
+        require(canRefund, "Cannot refund: deadline not passed and not authorized");
+
+        // Update status
+        escrow.status = ESCROW_STATUS_REFUNDED;
+        self.escrows.set(msg.escrowId, escrow);
+
+        // Refund to creator
+        send(SendParameters {
+            to: escrow.creatorAddress,
+            value: escrow.amount,
+            mode: SendIgnoreErrors,
+            body: beginCell()
+                .storeSlice("Escrow refunded".asSlice())
+                .endCell()
+        });
+
+        // Emit event
+        let eventData: Cell = beginCell()
+            .storeUint(msg.escrowId, 64)
+            .storeCoins(escrow.amount)
+            .storeAddress(escrow.creatorAddress)
+            .storeUint(now(), 64)
+            .endCell();
+
+        self.emitGroupEvent(EVENT_GOAL_COMPLETED, myAddress(), eventData);
+    }
+
     /// Getter for group information
     get fun getGroupInfo(): GroupInfo {
         return GroupInfo {
@@ -489,7 +655,17 @@ contract GroupVault with GroupUtils, MathUtils, EventUtils, CryptoUtils {
     get fun getAllDebts(): map<Int, DebtInfo> {
         return self.debts;
     }
-    
+
+    /// Getter for specific escrow
+    get fun getEscrow(escrowId: Int): EscrowInfo? {
+        return self.escrows.get(escrowId);
+    }
+
+    /// Getter for all escrows
+    get fun getAllEscrows(): map<Int, EscrowInfo> {
+        return self.escrows;
+    }
+
     /// Getter for group settings
     get fun getSettings(): GroupSettings {
         return self.settings;

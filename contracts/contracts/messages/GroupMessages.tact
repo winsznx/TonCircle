@@ -76,6 +76,31 @@ message(0x200A) GroupLeaveGroup {
     reason: String;
 }
 
+/// Message for creating an escrow
+message(0x200B) CreateEscrow {
+    escrowId: Int;
+    description: String;
+    amount: Int;
+    recipientAddress: Address;
+    requiredSignatures: Int;
+    deadline: Int;
+}
+
+/// Message for approving an escrow
+message(0x200C) ApproveEscrow {
+    escrowId: Int;
+}
+
+/// Message for releasing escrow funds
+message(0x200D) ReleaseEscrow {
+    escrowId: Int;
+}
+
+/// Message for refunding an escrow
+message(0x200E) RefundEscrow {
+    escrowId: Int;
+}
+
 /// Response message for group information
 message(0x2081) GroupVaultInfoResponse {
     groupHash: Int;

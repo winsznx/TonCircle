@@ -55,6 +55,21 @@ struct DebtInfo {
     reason: String;
 }
 
+/// Escrow information structure
+struct EscrowInfo {
+    escrowId: Int;
+    description: String;
+    amount: Int;
+    recipientAddress: Address;
+    creatorAddress: Address;
+    requiredSignatures: Int;
+    currentSignatures: Int;
+    approvals: map<Address, Bool>; // Track who has approved
+    deadline: Int;
+    createdAt: Int;
+    status: Int; // 0=pending, 1=released, 2=refunded
+}
+
 /// Contribution information structure
 struct ContributionInfo {
     contributionId: Int;
@@ -142,3 +157,8 @@ const EXPENSE_STATUS_CANCELLED: Int = 3;
 const DEBT_STATUS_PENDING: Int = 1;
 const DEBT_STATUS_SETTLED: Int = 2;
 const DEBT_STATUS_OVERDUE: Int = 3;
+
+/// Escrow status constants
+const ESCROW_STATUS_PENDING: Int = 0;
+const ESCROW_STATUS_RELEASED: Int = 1;
+const ESCROW_STATUS_REFUNDED: Int = 2;
