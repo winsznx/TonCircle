@@ -125,14 +125,249 @@ Built as both a Telegram Mini-App and Bot, TON Circle provides dual interfaces f
               └──────────────────────────┘
 ```
 
-### Dual Interface Workflow
+### Current Workflow
 
-1. **User creates expense in mini-app** → Transaction sent to GroupVault
-2. **Contract processes** → Updates on-chain state
-3. **Bot polls contracts** → Detects new expense
-4. **Notification sent** → Telegram group receives update
-5. **User checks in bot** → `/expenses` shows live data from blockchain
-6. **Seamless sync** → Bot and mini-app always show same data
+#### 1. Initial Setup
+```
+1. Deploy GroupVaultFactory contract to testnet
+   └─> Factory Address: EQDU7ANbVtUxcw79x7dFfltROR2hNYGefwBIzdPEm33wKbs9
+
+2. Configure Mini-App
+   ├─> Update VITE_FACTORY_ADDRESS in .env
+   ├─> Deploy to hosting (Vercel/Netlify)
+   └─> Get HTTPS URL for Telegram integration
+
+3. Configure Telegram Bot
+   ├─> Set bot commands via @BotFather
+   ├─> Link mini-app URL to bot
+   ├─> Configure database connection (PostgreSQL)
+   └─> Deploy bot service (Railway/Heroku)
+```
+
+#### 2. Group Creation & Management
+```
+User Flow:
+┌─────────────────────────────────────────────────────────────┐
+│ 1. User opens Mini-App in Telegram                         │
+│    ├─> Connect TON wallet via TON Connect                   │
+│    └─> Navigate to "Groups" page                            │
+├─────────────────────────────────────────────────────────────┤
+│ 2. Click "Create Group"                                     │
+│    ├─> Enter group name                                     │
+│    ├─> Mini-app calls GroupVaultFactory.registerGroup()    │
+│    ├─> Send 2.2 TON transaction (2 TON fee + 0.2 gas)      │
+│    └─> Factory deploys new GroupVault contract             │
+├─────────────────────────────────────────────────────────────┤
+│ 3. Bot detects new group on blockchain                      │
+│    ├─> User runs /linkgroup in Telegram group chat         │
+│    ├─> Bot stores mapping in database:                      │
+│    │   telegram_groups table (group_id, vault_address)      │
+│    └─> Group is now accessible via both interfaces         │
+├─────────────────────────────────────────────────────────────┤
+│ 4. Add members to group                                     │
+│    ├─> Option A: Via mini-app (send transaction)           │
+│    │   └─> GroupVault.addMember() creates Member contract  │
+│    ├─> Option B: Via bot command /addmember                │
+│    │   └─> Opens mini-app with pre-filled form             │
+│    └─> Members stored on-chain and in database             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 3. Daily Operations Workflow
+```
+Expense Tracking:
+┌─────────────────────────────────────────────────────────────┐
+│ Creating an Expense:                                        │
+│                                                             │
+│ Via Mini-App:                                               │
+│  1. Open Expenses page                                      │
+│  2. Click "Add Expense"                                     │
+│  3. Fill form (description, amount, split type)             │
+│  4. Sign transaction → GroupVault.recordExpense()          │
+│  5. Expense stored on-chain                                 │
+│                                                             │
+│ Via Bot Command:                                            │
+│  1. Type: /addexpense Dinner 50                            │
+│  2. Bot opens mini-app with pre-filled data                │
+│  3. User reviews and approves transaction                   │
+│  4. Same on-chain storage                                   │
+├─────────────────────────────────────────────────────────────┤
+│ Viewing Expenses:                                           │
+│                                                             │
+│ In Mini-App:                                                │
+│  • Real-time query: groupVault.getExpenses()               │
+│  • Shows: description, amount, date, payer, split          │
+│  • Calculate debts automatically                            │
+│                                                             │
+│ In Bot:                                                     │
+│  • Command: /expenses                                       │
+│  • Reads from blockchain via contractService.ts            │
+│  • Formats and sends to Telegram chat                       │
+│  • Option to "View in App" button → deep link              │
+└─────────────────────────────────────────────────────────────┘
+
+Debt Settlement:
+┌─────────────────────────────────────────────────────────────┐
+│ 1. Check debts                                              │
+│    ├─> Mini-app: Automatic calculation on Expenses page    │
+│    └─> Bot: /mydebts command                               │
+├─────────────────────────────────────────────────────────────┤
+│ 2. Settle debt                                              │
+│    ├─> Click "Pay" next to debt entry                      │
+│    ├─> Sign transaction: GroupVault.settleDebt()          │
+│    ├─> Send TON amount + 0.05 gas                          │
+│    └─> Debt marked as settled on-chain                     │
+├─────────────────────────────────────────────────────────────┤
+│ 3. Verification                                             │
+│    ├─> Both interfaces update immediately                   │
+│    ├─> Bot can send notification to group (if enabled)     │
+│    └─> Member reputation updated                            │
+└─────────────────────────────────────────────────────────────┘
+
+Savings Goals:
+┌─────────────────────────────────────────────────────────────┐
+│ 1. Create Goal                                              │
+│    ├─> Goals page → "Create Goal"                          │
+│    ├─> Set: title, target amount, deadline, recipient      │
+│    ├─> Transaction: GroupVault.createGoal()                │
+│    └─> Goal stored on-chain                                 │
+├─────────────────────────────────────────────────────────────┤
+│ 2. Contribute to Goal                                       │
+│    ├─> Mini-app: Click "Contribute" on goal card           │
+│    ├─> Enter amount                                         │
+│    ├─> Send: amount + 0.05 TON gas                         │
+│    └─> Contribution recorded on-chain                       │
+├─────────────────────────────────────────────────────────────┤
+│ 3. Track Progress                                           │
+│    ├─> Mini-app: Real-time progress bars                   │
+│    ├─> Bot: /goals command shows all goals                 │
+│    └─> Auto-release when target reached                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 4. Bot-MiniApp Integration Flow
+```
+Database Bridge Architecture:
+┌─────────────────────────────────────────────────────────────┐
+│                     PostgreSQL Database                     │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ telegram_groups: Link chats to vault addresses      │   │
+│  │ group_members: Track member relationships           │   │
+│  │ expenses: Cache recent expenses for fast lookup     │   │
+│  │ goals: Cache goals with progress tracking           │   │
+│  │ debts: Track pending/settled debts                  │   │
+│  │ notifications: Queue for outgoing alerts            │   │
+│  │ bot_commands: Analytics and logging                 │   │
+│  │ user_sessions: Deep link state management           │   │
+│  │ settings: Group and user preferences                │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+           ▲                              ▲
+           │                              │
+    ┌──────┴──────┐              ┌───────┴────────┐
+    │ Telegram Bot │              │   Mini-App     │
+    │              │              │                │
+    │ Writes:      │              │ Reads:         │
+    │ • Bot cmds   │              │ • Direct from  │
+    │ • Links      │              │   blockchain   │
+    │ • Sessions   │              │                │
+    │              │              │ Triggers:      │
+    │ Reads:       │              │ • Updates DB   │
+    │ • From both  │              │   via webhook  │
+    │   DB and     │◄────sync────►│   (optional)   │
+    │   blockchain │              │                │
+    └──────────────┘              └────────────────┘
+
+Command Flow Example (/status):
+1. User types /status in Telegram group
+2. Bot queries database for group vault address
+3. Bot calls contractService.getGroupStatus(address)
+4. ContractService reads directly from blockchain
+5. Bot formats data and sends to chat
+6. "View Details" button → deep link to mini-app
+```
+
+#### 5. Data Consistency Model
+```
+Source of Truth: TON Blockchain (GroupVault contracts)
+├─> All financial data stored on-chain
+├─> Immutable transaction history
+└─> Cryptographically verified
+
+Database Role: Performance & UX
+├─> Cache frequently accessed data
+├─> Store Telegram-specific mappings
+├─> Enable fast command responses
+└─> Queue notifications
+
+Sync Strategy:
+┌─────────────────────────────────────────────────────────────┐
+│ Write Path:                                                 │
+│  Mini-App → Blockchain → (webhook) → Database              │
+│  Bot Command → Mini-App → Blockchain → Database            │
+│                                                             │
+│ Read Path:                                                  │
+│  Bot: Database (cache) + Blockchain (verification)         │
+│  Mini-App: Blockchain (always fresh)                       │
+│                                                             │
+│ Cache Invalidation:                                         │
+│  • Bot polls blockchain every 30s for updates              │
+│  • Webhook triggers immediate cache refresh (optional)     │
+│  • Manual refresh via /refresh command                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 6. Complete User Journey Example
+```
+Scenario: Weekend Trip Expense Splitting
+
+Friday:
+  10:00 AM - Alice creates "Weekend Trip" group via mini-app
+          ├─> GroupVault deployed at EQC...xyz
+          └─> Cost: 2.2 TON
+
+  10:05 AM - Alice runs /linkgroup in Telegram group chat
+          └─> Bot links chat_id to vault address
+
+  10:10 AM - Bob, Charlie join via /join command
+          ├─> Bot opens mini-app for each
+          ├─> Each approves addMember transaction (0.1 TON)
+          └─> 3 Member contracts created on-chain
+
+  11:00 AM - Group creates goal "Hotel Booking" for 300 TON
+          ├─> Target: 300 TON, Deadline: 7 days
+          ├─> Alice contributes 100 TON
+          ├─> Bob contributes 100 TON
+          └─> Charlie contributes 100 TON
+
+Saturday:
+  08:00 PM - Alice pays for dinner: 60 TON
+          ├─> Adds expense via mini-app
+          ├─> Split: Alice 20, Bob 20, Charlie 20
+          └─> Creates debts: Bob owes 20, Charlie owes 20
+
+Sunday:
+  09:00 AM - Bob checks debts: /mydebts
+          └─> Bot shows: "You owe Alice 20 TON"
+
+  09:05 AM - Bob settles debt via mini-app
+          ├─> Sends 20.05 TON (20 + 0.05 gas)
+          └─> Debt marked settled on-chain
+
+  09:10 AM - Charlie uses /expenses
+          ├─> Bot shows all trip expenses
+          └─> Clicks "View in App" for details
+
+  06:00 PM - Hotel booking goal completed
+          ├─> 300 TON auto-released to Alice (hotel booker)
+          └─> Bot notifies group: "Goal 'Hotel Booking' achieved! 🎉"
+
+Result:
+  ✓ All transactions verified on blockchain
+  ✓ Complete audit trail available
+  ✓ Group can view history anytime via /status
+  ✓ Member reputations updated (Alice +2, Bob +1, Charlie +1)
+```
 
 ## 📜 Smart Contracts
 
