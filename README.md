@@ -130,7 +130,7 @@ Built as both a Telegram Mini-App and Bot, TON Circle provides dual interfaces f
 #### 1. Initial Setup
 ```
 1. Deploy GroupVaultFactory contract to testnet
-   └─> Factory Address: EQDU7ANbVtUxcw79x7dFfltROR2hNYGefwBIzdPEm33wKbs9
+   └─> Factory Address: 0QCxtjHGO8cKALGQ-eHrc6kffg2QmoyUxo-txVNhX_gb1iKc
 
 2. Configure Mini-App
    ├─> Update VITE_FACTORY_ADDRESS in .env
@@ -375,14 +375,14 @@ Result:
 
 **GroupVaultFactory**
 ```
-Address: EQDU7ANbVtUxcw79x7dFfltROR2hNYGefwBIzdPEm33wKbs9
+Address: 0QCxtjHGO8cKALGQ-eHrc6kffg2QmoyUxo-txVNhX_gb1iKc
 Network: Testnet
 Status: ✅ Active
 Language: Tact v1.6.13
 Balance: ~7.5 TON
 ```
 
-[View on Explorer](https://testnet.tonscan.org/address/EQDU7ANbVtUxcw79x7dFfltROR2hNYGefwBIzdPEm33wKbs9)
+[View on Explorer](https://testnet.tonscan.org/address/0QCxtjHGO8cKALGQ-eHrc6kffg2QmoyUxo-txVNhX_gb1iKc)
 
 ### Contract Hierarchy
 
@@ -559,7 +559,7 @@ VITE_TON_MANIFEST_URL=http://localhost:3001/tonconnect-manifest.json
 VITE_TON_NETWORK=testnet
 
 # Deployed Contract Addresses
-VITE_FACTORY_ADDRESS=EQDU7ANbVtUxcw79x7dFfltROR2hNYGefwBIzdPEm33wKbs9
+VITE_FACTORY_ADDRESS=0QCxtjHGO8cKALGQ-eHrc6kffg2QmoyUxo-txVNhX_gb1iKc
 
 # Telegram Configuration
 VITE_BOT_USERNAME=@your_bot_username
